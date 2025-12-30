@@ -101,15 +101,14 @@ export default async function DashboardPage() {
                     <Link href="/workouts" className="flex-1 sm:w-auto">
                       <Button
                         variant="outline"
-                        size="sm"
-                        className="w-full px-3 py-1 text-sm sm:px-4 sm:py-2"
+                        className="w-full px-3 py-1 text-sm sm:w-auto sm:px-4 sm:py-2"
                       >
                         View All
                       </Button>
                     </Link>
                     {/* Mobile-only New Workout button (shares width with View All) */}
                     <Link href="/workouts/new" className="flex-1 sm:hidden">
-                      <Button className="w-full px-3 py-1 text-sm">
+                      <Button className="w-full px-3 py-1 text-sm sm:px-4 sm:py-2">
                         <Plus className="h-4 w-4 mr-2" />
                         New Workout
                       </Button>
