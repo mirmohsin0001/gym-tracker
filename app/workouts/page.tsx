@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { WorkoutCard } from '@/components/workout-card'
 import { Button } from '@/components/ui/button'
-import { Plus } from 'lucide-react'
+import { Plus, ArrowLeft } from 'lucide-react'
 import { Workout } from '@/app/lib/types'
 import LogoutButton from '@/components/logout-button'
 
@@ -45,6 +45,12 @@ export default async function WorkoutsPage() {
       </header>
 
       <main className="container mx-auto px-4 py-4 sm:py-8">
+        <Link href="/dashboard">
+          <Button variant="ghost" size="sm" className="mb-5 sm:mb-6">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Dashboard
+          </Button>
+        </Link>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8">
           <div>
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">My Workouts</h2>

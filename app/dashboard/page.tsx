@@ -115,11 +115,15 @@ export default async function DashboardPage() {
                     </Link>
                   </div>
                 </div>
-                <CardDescription>
+                <CardDescription className="hidden sm:block">
                   Your recently created workouts
                 </CardDescription>
               </CardHeader>
               <CardContent>
+                {/* Mobile-only description placed inside CardContent */}
+                <CardDescription className="sm:hidden mb-2">
+                  Your recently created workouts
+                </CardDescription>
                 {workouts.length === 0 ? (
                   <div className="text-center py-12">
                     <p className="text-muted-foreground mb-4">
