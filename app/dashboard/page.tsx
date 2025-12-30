@@ -96,18 +96,25 @@ export default async function DashboardPage() {
               <CardHeader>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <CardTitle className="text-lg sm:text-xl">My Workouts</CardTitle>
-                  <Link href="/workouts" className="w-full sm:w-auto">
-                    <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                      View All
-                    </Button>
-                  </Link>
-                  {/* Mobile-only New Workout button inside My Workouts card */}
-                  <Link href="/workouts/new" className="w-full sm:hidden">
-                    <Button className="w-full">
-                      <Plus className="h-4 w-4 mr-2" />
-                      New Workout
-                    </Button>
-                  </Link>
+                  {/* Buttons container: on mobile show buttons inline, equal width, full available width */}
+                  <div className="flex w-full gap-2 items-center sm:w-auto">
+                    <Link href="/workouts" className="flex-1 sm:w-auto">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full px-3 py-1 text-sm sm:px-4 sm:py-2"
+                      >
+                        View All
+                      </Button>
+                    </Link>
+                    {/* Mobile-only New Workout button (shares width with View All) */}
+                    <Link href="/workouts/new" className="flex-1 sm:hidden">
+                      <Button className="w-full px-3 py-1 text-sm">
+                        <Plus className="h-4 w-4 mr-2" />
+                        New Workout
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
                 <CardDescription>
                   Your recently created workouts
