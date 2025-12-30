@@ -17,7 +17,12 @@ export default function LogWorkoutButton({ workoutId }: LogWorkoutButtonProps) {
   const handleLogWorkout = async () => {
     setIsLogging(true)
     try {
-      const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD format
+      // Use local date components to avoid UTC offset issues
+      const now = new Date()
+      const yyyy = now.getFullYear()
+      const mm = String(now.getMonth() + 1).padStart(2, '0')
+      const dd = String(now.getDate()).padStart(2, '0')
+      const today = `${yyyy}-${mm}-${dd}` // YYYY-MM-DD format (local)
 
       const response = await fetch('/api/workout-logs', {
         method: 'POST',

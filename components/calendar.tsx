@@ -54,7 +54,11 @@ export function WorkoutCalendar({ year, month, loggedDates }: WorkoutCalendarPro
   const [dialogOpen, setDialogOpen] = useState(false)
 
   const fetchWorkoutsForDate = async (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0]
+    // Format the date as local YYYY-MM-DD to avoid UTC offset shifting the day
+    const yyyy = date.getFullYear()
+    const mm = String(date.getMonth() + 1).padStart(2, '0')
+    const dd = String(date.getDate()).padStart(2, '0')
+    const dateStr = `${yyyy}-${mm}-${dd}`
     setSelectedDate(dateStr)
     setLoading(true)
     setDialogOpen(true)
@@ -73,7 +77,10 @@ export function WorkoutCalendar({ year, month, loggedDates }: WorkoutCalendarPro
   }
 
   const tileContent = ({ date }: { date: Date }) => {
-    const dateStr = date.toISOString().split('T')[0]
+    const yyyy = date.getFullYear()
+    const mm = String(date.getMonth() + 1).padStart(2, '0')
+    const dd = String(date.getDate()).padStart(2, '0')
+    const dateStr = `${yyyy}-${mm}-${dd}`
     if (loggedDates.includes(dateStr)) {
       return (
         <div className="flex justify-center mt-1">
@@ -85,8 +92,14 @@ export function WorkoutCalendar({ year, month, loggedDates }: WorkoutCalendarPro
   }
 
   const tileClassName = ({ date }: { date: Date }) => {
-    const dateStr = date.toISOString().split('T')[0]
-    const todayStr = today.toISOString().split('T')[0]
+    const yyyy = date.getFullYear()
+    const mm = String(date.getMonth() + 1).padStart(2, '0')
+    const dd = String(date.getDate()).padStart(2, '0')
+    const dateStr = `${yyyy}-${mm}-${dd}`
+    const tyyyy = today.getFullYear()
+    const tmm = String(today.getMonth() + 1).padStart(2, '0')
+    const tdd = String(today.getDate()).padStart(2, '0')
+    const todayStr = `${tyyyy}-${tmm}-${tdd}`
     
     if (dateStr === todayStr) {
       return 'react-calendar__tile--today'
@@ -95,7 +108,10 @@ export function WorkoutCalendar({ year, month, loggedDates }: WorkoutCalendarPro
   }
 
   const onClickDay = (value: Date) => {
-    const dateStr = value.toISOString().split('T')[0]
+    const yyyy = value.getFullYear()
+    const mm = String(value.getMonth() + 1).padStart(2, '0')
+    const dd = String(value.getDate()).padStart(2, '0')
+    const dateStr = `${yyyy}-${mm}-${dd}`
     if (loggedDates.includes(dateStr)) {
       fetchWorkoutsForDate(value)
     }
