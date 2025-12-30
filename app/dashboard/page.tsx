@@ -82,7 +82,7 @@ export default async function DashboardPage() {
               Track your workouts and progress
             </p>
           </div>
-          <Link href="/workouts/new" className="w-full sm:w-auto">
+          <Link href="/workouts/new" className="hidden sm:block">
             <Button className="w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               New Workout
@@ -91,7 +91,7 @@ export default async function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 order-2 lg:order-1">
             <Card>
               <CardHeader>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -99,6 +99,13 @@ export default async function DashboardPage() {
                   <Link href="/workouts" className="w-full sm:w-auto">
                     <Button variant="outline" size="sm" className="w-full sm:w-auto">
                       View All
+                    </Button>
+                  </Link>
+                  {/* Mobile-only New Workout button inside My Workouts card */}
+                  <Link href="/workouts/new" className="w-full sm:hidden">
+                    <Button className="w-full">
+                      <Plus className="h-4 w-4 mr-2" />
+                      New Workout
                     </Button>
                   </Link>
                 </div>
@@ -130,7 +137,7 @@ export default async function DashboardPage() {
             </Card>
           </div>
 
-          <div>
+          <div className="order-1 lg:order-2">
             <WorkoutCalendar
               year={currentYear}
               month={currentMonth}
