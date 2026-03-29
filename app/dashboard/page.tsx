@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { WorkoutCalendar } from '@/components/calendar'
 import { WorkoutCard } from '@/components/workout-card'
 import { Button } from '@/components/ui/button'
-import { Plus, Dumbbell, Flame, Target, TrendingUp, Calendar, User } from 'lucide-react'
+import { Plus, Dumbbell, Flame, Target, TrendingUp, Calendar, User, ClipboardList } from 'lucide-react'
 import { Workout } from '@/app/lib/types'
 import LogoutButton from '@/components/logout-button'
 
@@ -134,6 +134,12 @@ export default async function DashboardPage() {
               <Button variant="outline" size="sm" className="gap-2">
                 <User className="h-4 w-4" />
                 <span className="hidden sm:inline">Body Map</span>
+              </Button>
+            </Link>
+            <Link href="/logs">
+              <Button variant="outline" size="sm" className="gap-2">
+                <ClipboardList className="h-4 w-4" />
+                <span className="hidden sm:inline">Logs</span>
               </Button>
             </Link>
             <LogoutButton />

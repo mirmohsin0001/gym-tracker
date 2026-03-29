@@ -2,7 +2,7 @@ import { createClient } from '@/app/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Dumbbell, ArrowLeft, User, Calendar, TrendingUp } from 'lucide-react'
+import { Dumbbell, ArrowLeft, User, Calendar, TrendingUp, ClipboardList } from 'lucide-react'
 import LogoutButton from '@/components/logout-button'
 import { MuscleMap } from '@/components/muscle-map'
 import { Workout } from '@/app/lib/types'
@@ -104,7 +104,21 @@ export default async function BodyPage() {
             </Link>
             <span className="text-xl font-display font-bold tracking-tight">GYMTRACK</span>
           </div>
-          <LogoutButton />
+          <div className="flex items-center gap-3">
+            <Link href="/body">
+              <Button variant="outline" size="sm" className="gap-2 border-primary/50 text-primary">
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline">Body Map</span>
+              </Button>
+            </Link>
+            <Link href="/logs">
+              <Button variant="outline" size="sm" className="gap-2">
+                <ClipboardList className="h-4 w-4" />
+                <span className="hidden sm:inline">Logs</span>
+              </Button>
+            </Link>
+            <LogoutButton />
+          </div>
         </div>
       </header>
 
