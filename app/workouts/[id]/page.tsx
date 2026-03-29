@@ -2,8 +2,7 @@ import { createClient } from '@/app/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowLeft, Dumbbell } from 'lucide-react'
+import { ArrowLeft, Dumbbell, Zap, Hash, Weight, Repeat } from 'lucide-react'
 import { Workout } from '@/app/lib/types'
 import LogoutButton from '@/components/logout-button'
 import LogWorkoutButton from '@/components/log-workout-button'
@@ -42,73 +41,142 @@ export default async function WorkoutDetailPage({
     notFound()
   }
 
+  const totalVolume = workout.exercises.reduce((acc, exercise) => {
+    const volume = exercise.weight 
+      ? exercise.sets * exercise.reps * exercise.weight 
+      : exercise.sets * exercise.reps
+    return acc + volume
+  }, 0)
+
+  const totalSets = workout.exercises.reduce((acc, e) => acc + e.sets, 0)
+  const totalReps = workout.exercises.reduce((acc, e) => acc + (e.sets * e.reps), 0)
+
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b">
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/workouts">
-            <h1 className="text-xl sm:text-2xl font-bold cursor-pointer hover:opacity-80">Gym Tracker</h1>
+          <Link href="/workouts" className="flex items-center gap-3 group">
+            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center glow-sm group-hover:glow transition-all">
+              <Dumbbell className="h-5 w-5 text-primary" />
+            </div>
+            <span className="text-xl font-display font-bold tracking-tight">GYMTRACK</span>
           </Link>
           <LogoutButton />
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-4 sm:py-8 max-w-4xl">
+      <main className="container mx-auto px-4 py-6 sm:py-10 max-w-4xl">
+        {/* Back Button */}
         <Link href="/workouts">
-          <Button variant="ghost" size="sm" className="mb-6">
+          <Button variant="ghost" size="sm" className="mb-6 -ml-2 text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Workouts
           </Button>
         </Link>
 
-        <Card>
-          <CardHeader>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <Dumbbell className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-                <CardTitle className="text-2xl sm:text-3xl">{workout.name}</CardTitle>
+        {/* Workout Header */}
+        <div className="rounded-2xl bg-card border border-border/50 p-6 sm:p-8 mb-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+            <div className="flex items-center gap-4">
+              <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center glow-sm">
+                <Dumbbell className="h-7 w-7 text-primary" />
               </div>
-              <LogWorkoutButton workoutId={workout.id} />
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-display font-bold">{workout.name}</h1>
+                <p className="text-muted-foreground">
+                  {workout.exercises.length} {workout.exercises.length === 1 ? 'exercise' : 'exercises'}
+                </p>
+              </div>
             </div>
-            <CardDescription>
-              {workout.exercises.length} {workout.exercises.length === 1 ? 'exercise' : 'exercises'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {workout.exercises.map((exercise, index) => (
-                <div
-                  key={index}
-                  className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 p-3 sm:p-4 border rounded-lg hover:bg-accent/50 transition-colors"
-                >
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-lg">{exercise.name}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {exercise.sets} sets × {exercise.reps} reps
-                      {exercise.weight !== undefined && exercise.weight !== null && (
-                        <> × {exercise.weight} kg</>
-                      )}
-                    </p>
+            <LogWorkoutButton workoutId={workout.id} />
+          </div>
+
+          {/* Quick Stats */}
+          <div className="grid grid-cols-3 gap-4">
+            <div className="rounded-xl bg-secondary/50 p-4 text-center">
+              <div className="flex items-center justify-center gap-1.5 mb-1">
+                <Hash className="h-4 w-4 text-primary" />
+                <span className="text-xs text-muted-foreground uppercase tracking-wider">Sets</span>
+              </div>
+              <p className="text-2xl font-display font-bold">{totalSets}</p>
+            </div>
+            <div className="rounded-xl bg-secondary/50 p-4 text-center">
+              <div className="flex items-center justify-center gap-1.5 mb-1">
+                <Repeat className="h-4 w-4 text-blue-500" />
+                <span className="text-xs text-muted-foreground uppercase tracking-wider">Reps</span>
+              </div>
+              <p className="text-2xl font-display font-bold">{totalReps}</p>
+            </div>
+            <div className="rounded-xl bg-secondary/50 p-4 text-center">
+              <div className="flex items-center justify-center gap-1.5 mb-1">
+                <Zap className="h-4 w-4 text-orange-500" />
+                <span className="text-xs text-muted-foreground uppercase tracking-wider">Volume</span>
+              </div>
+              <p className="text-2xl font-display font-bold">{totalVolume.toLocaleString()}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Exercises List */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-display font-semibold text-muted-foreground uppercase tracking-wider">
+            Exercises
+          </h2>
+          
+          <div className="space-y-3">
+            {workout.exercises.map((exercise, index) => (
+              <div
+                key={index}
+                className="group rounded-2xl bg-card border border-border/50 p-5 hover:border-primary/50 transition-all animate-slide-up"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 rounded-xl bg-secondary flex items-center justify-center font-display font-bold text-lg text-muted-foreground">
+                      {index + 1}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
+                        {exercise.name}
+                      </h3>
+                      <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Hash className="h-3.5 w-3.5" />
+                          {exercise.sets} sets
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Repeat className="h-3.5 w-3.5" />
+                          {exercise.reps} reps
+                        </span>
+                        {exercise.weight !== undefined && exercise.weight !== null && (
+                          <span className="flex items-center gap-1 text-primary">
+                            <Weight className="h-3.5 w-3.5" />
+                            {exercise.weight} kg
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-left sm:text-right w-full sm:w-auto">
-                    <div className="text-xl sm:text-2xl font-bold text-primary">
+                  
+                  <div className="flex flex-col items-end">
+                    <div className="text-2xl sm:text-3xl font-display font-bold text-primary">
                       {exercise.weight !== undefined && exercise.weight !== null
                         ? (exercise.sets * exercise.reps * exercise.weight).toLocaleString()
                         : exercise.sets * exercise.reps}
                     </div>
                     <div className="text-xs text-muted-foreground">
                       {exercise.weight !== undefined && exercise.weight !== null
-                        ? 'volume'
+                        ? 'kg volume'
                         : 'total reps'}
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              </div>
+            ))}
+          </div>
+        </div>
       </main>
     </div>
   )
 }
-

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Calendar, Check } from 'lucide-react'
+import { Check, Zap } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface LogWorkoutButtonProps {
@@ -43,7 +43,7 @@ export default function LogWorkoutButton({ workoutId }: LogWorkoutButtonProps) {
           throw new Error(error.error || 'Failed to log workout')
         }
       } else {
-        toast.success('Workout logged successfully!')
+        toast.success('Workout logged! Keep crushing it!')
         router.refresh()
       }
     } catch (error: any) {
@@ -54,19 +54,23 @@ export default function LogWorkoutButton({ workoutId }: LogWorkoutButtonProps) {
   }
 
   return (
-    <Button onClick={handleLogWorkout} disabled={isLogging} size="lg">
+    <Button 
+      onClick={handleLogWorkout} 
+      disabled={isLogging} 
+      size="lg"
+      className="gap-2 glow font-semibold"
+    >
       {isLogging ? (
         <>
-          <Calendar className="h-4 w-4 mr-2 animate-spin" />
+          <div className="h-4 w-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
           Logging...
         </>
       ) : (
         <>
-          <Check className="h-4 w-4 mr-2" />
-          Log Today
+          <Zap className="h-4 w-4" />
+          Log Workout
         </>
       )}
     </Button>
   )
 }
-
