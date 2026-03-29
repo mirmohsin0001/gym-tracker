@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Plus, Dumbbell, Flame, Target, TrendingUp, Calendar, User, ClipboardList } from 'lucide-react'
 import { Workout } from '@/app/lib/types'
 import LogoutButton from '@/components/logout-button'
+import { QuickLogDialog } from '@/components/quick-log-dialog'
 
 async function getWorkouts(userId: string) {
   const supabase = createClient()
@@ -136,12 +137,15 @@ export default async function DashboardPage() {
               {"Let's crush your fitness goals today. Every rep counts."}
             </p>
           </div>
-          <Link href="/workouts/new" className="w-full sm:w-auto">
-            <Button size="lg" className="w-full sm:w-auto gap-2 glow font-semibold text-base">
-              <Plus className="h-5 w-5" />
-              New Workout
-            </Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <QuickLogDialog />
+            <Link href="/workouts/new" className="w-full sm:w-auto">
+              <Button size="lg" className="w-full sm:w-auto gap-2 glow font-semibold text-base">
+                <Plus className="h-5 w-5" />
+                New Workout
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Stats Grid */}
