@@ -13,12 +13,6 @@ import {
 import { Calendar as CalendarIcon, Dumbbell, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 
-interface WorkoutCalendarProps {
-  year: number
-  month: number
-  loggedDates: string[] // YYYY-MM-DD format
-}
-
 interface WorkoutLogWithDetails {
   id: string
   workout_id: string
@@ -37,19 +31,41 @@ interface WorkoutLogWithDetails {
   }
 }
 
-export function WorkoutCalendar({ year, month, loggedDates }: WorkoutCalendarProps) {
-  const [activeStartDate, setActiveStartDate] = useState<Date>(new Date(year, month - 1, 1))
+export function WorkoutCalendar() {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-
-  useEffect(() => {
-    setActiveStartDate(new Date(year, month - 1, 1))
-  }, [year, month])
+  
+  const [activeStartDate, setActiveStartDate] = useState<Date>(new Date(today.getFullYear(), today.getMonth(), 1))
+  const [loggedDates, setLoggedDates] = useState<string[]>([])
+  const [loadingDates, setLoadingDates] = useState(false)
 
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [workouts, setWorkouts] = useState<WorkoutLogWithDetails[]>([])
   const [loading, setLoading] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
+
+  // Fetch logged dates for the current view month
+  const fetchLoggedDates = async (year: number, month: number) => {
+    setLoadingDates(true)
+    try {
+      const response = await fetch(`/api/workout-logs/dates?year=${year}&month=${month}`)
+      if (response.ok) {
+        const data = await response.json()
+        setLoggedDates(data.dates || [])
+      }
+    } catch (error) {
+      console.error('Error fetching logged dates:', error)
+    } finally {
+      setLoadingDates(false)
+    }
+  }
+
+  // Fetch dates when month changes
+  useEffect(() => {
+    const year = activeStartDate.getFullYear()
+    const month = activeStartDate.getMonth() + 1
+    fetchLoggedDates(year, month)
+  }, [activeStartDate])
 
   const fetchWorkoutsForDate = async (date: Date) => {
     const yyyy = date.getFullYear()
@@ -147,7 +163,12 @@ export function WorkoutCalendar({ year, month, loggedDates }: WorkoutCalendarPro
       </div>
       
       <div className="p-4">
-        <div className="flex justify-center">
+        <div className="flex justify-center relative">
+          {loadingDates && (
+            <div className="absolute inset-0 bg-card/50 flex items-center justify-center z-10 rounded-lg">
+              <div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
           <Calendar
             value={today}
             activeStartDate={activeStartDate}

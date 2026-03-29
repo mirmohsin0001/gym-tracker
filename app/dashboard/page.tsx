@@ -25,27 +25,7 @@ async function getWorkouts(userId: string) {
   return data as Workout[]
 }
 
-async function getLoggedDates(userId: string, year: number, month: number) {
-  const supabase = createClient()
-  const startDate = `${year}-${String(month).padStart(2, '0')}-01`
-  const nextMonth = month === 12 ? 1 : month + 1
-  const nextYear = month === 12 ? year + 1 : year
-  const endDate = `${nextYear}-${String(nextMonth).padStart(2, '0')}-01`
 
-  const { data, error } = await supabase
-    .from('workout_logs')
-    .select('date')
-    .eq('user_id', userId)
-    .gte('date', startDate)
-    .lt('date', endDate)
-
-  if (error) {
-    console.error('Error fetching workout logs:', error)
-    return []
-  }
-
-  return (data || []).map(log => log.date as string)
-}
 
 async function getStats(userId: string) {
   const supabase = createClient()
@@ -106,13 +86,8 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
-  const now = new Date()
-  const currentYear = now.getFullYear()
-  const currentMonth = now.getMonth() + 1
-
-  const [workouts, loggedDates, stats] = await Promise.all([
+  const [workouts, stats] = await Promise.all([
     getWorkouts(user.id),
-    getLoggedDates(user.id, currentYear, currentMonth),
     getStats(user.id),
   ])
 
@@ -207,7 +182,7 @@ export default async function DashboardPage() {
                 <TrendingUp className="h-5 w-5 text-emerald-500" />
               </div>
             </div>
-            <p className="text-3xl sm:text-4xl font-display font-bold">{loggedDates.length}</p>
+            <p className="text-3xl sm:text-4xl font-display font-bold">{stats.monthLogs}</p>
             <p className="text-sm text-muted-foreground mt-1">Days Active</p>
           </div>
         </div>
@@ -257,11 +232,7 @@ export default async function DashboardPage() {
 
           {/* Calendar Section */}
           <div className="space-y-4">
-            <WorkoutCalendar
-              year={currentYear}
-              month={currentMonth}
-              loggedDates={loggedDates}
-            />
+            <WorkoutCalendar />
           </div>
         </div>
       </main>
