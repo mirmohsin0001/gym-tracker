@@ -287,22 +287,28 @@ export function WorkoutCalendar({ year, month, loggedDates }: WorkoutCalendarPro
           .react-calendar__tile:enabled:focus {
             background-color: hsl(0 0% 15%);
           }
+          .react-calendar__tile--now,
           .react-calendar__tile--today,
-          .react-calendar__tile--now {
+          .react-calendar__tile--now.react-calendar__tile--active,
+          .react-calendar__tile--today.react-calendar__tile--active {
             background: transparent !important;
             color: hsl(142 76% 46%) !important;
             font-weight: 700;
             border: 2px solid hsl(142 76% 46%) !important;
             box-sizing: border-box;
           }
-          .react-calendar__tile--active {
-            background: hsl(142 76% 46%) !important;
-            color: hsl(0 0% 2%) !important;
+          .react-calendar__tile--now:enabled:hover,
+          .react-calendar__tile--today:enabled:hover {
+            background: hsl(142 76% 46% / 0.1) !important;
+          }
+          .react-calendar__tile--active:not(.react-calendar__tile--now):not(.react-calendar__tile--today) {
+            background: hsl(0 0% 20%) !important;
+            color: hsl(0 0% 95%) !important;
             font-weight: 600;
           }
-          .react-calendar__tile--active:enabled:hover,
-          .react-calendar__tile--active:enabled:focus {
-            background: hsl(142 76% 50%);
+          .react-calendar__tile--active:not(.react-calendar__tile--now):not(.react-calendar__tile--today):enabled:hover,
+          .react-calendar__tile--active:not(.react-calendar__tile--now):not(.react-calendar__tile--today):enabled:focus {
+            background: hsl(0 0% 25%) !important;
           }
         `}</style>
       </div>
