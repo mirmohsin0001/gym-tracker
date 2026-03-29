@@ -27,7 +27,7 @@ async function getRecentWorkoutLogs(userId: string) {
   }
 
   // Get unique workout IDs
-  const workoutIds = [...new Set(logs.map(log => log.workout_id))]
+  const workoutIds = Array.from(new Set(logs.map(log => log.workout_id)))
   
   // Fetch the workouts to get exercise details
   const { data: workouts, error: workoutsError } = await supabase
