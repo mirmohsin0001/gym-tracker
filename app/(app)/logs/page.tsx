@@ -137,22 +137,42 @@ export default async function LogsPage() {
             </Link>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-5">
             {sortedDates.map((date, dateIndex) => (
-              <div key={date} className="animate-slide-up" style={{ animationDelay: `${dateIndex * 50}ms` }}>
+              <div 
+                key={date} 
+                className="rounded-2xl bg-card border border-border/50 overflow-hidden animate-slide-up" 
+                style={{ animationDelay: `${dateIndex * 50}ms` }}
+              >
                 {/* Date Header */}
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Calendar className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-semibold">{formatDate(date)}</p>
-                    <p className="text-xs text-muted-foreground">{formatFullDate(date)}</p>
-                  </div>
-                </div>
+                {(() => {
+                  const dayVolume = groupedLogs[date].reduce((sum, log) => sum + getTotalVolume(log.workout), 0)
+                  return (
+                    <div className="flex items-center gap-3 px-5 py-4 border-b border-border/50 bg-secondary/30">
+                      <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                        <Calendar className="h-4 w-4 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-display font-semibold">{formatDate(date)}</p>
+                        <p className="text-xs text-muted-foreground">{formatFullDate(date)}</p>
+                      </div>
+                      <div className="flex items-center gap-3 shrink-0">
+                        {dayVolume > 0 && (
+                          <div className="text-right">
+                            <p className="text-sm font-bold">{dayVolume.toLocaleString()} <span className="text-xs font-normal text-muted-foreground">kg</span></p>
+                            <p className="text-xs text-muted-foreground">total volume</p>
+                          </div>
+                        )}
+                        <div className="hidden sm:flex items-center justify-center h-7 px-2.5 rounded-full bg-primary/10 text-xs font-medium text-primary">
+                          {groupedLogs[date].length} {groupedLogs[date].length === 1 ? 'session' : 'sessions'}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })()}
 
                 {/* Logs for this date */}
-                <div className="space-y-3 ml-11">
+                <div className="divide-y divide-border/40">
                   {groupedLogs[date].map((log) => {
                     const volume = getTotalVolume(log.workout)
                     
@@ -162,11 +182,11 @@ export default async function LogsPage() {
                         href={`/workouts/${log.workout_id}`}
                         className="block group"
                       >
-                        <div className="rounded-xl bg-card border border-border/50 p-4 transition-all hover:border-primary/50 hover:glow-sm">
+                        <div className="px-5 py-4 transition-all hover:bg-secondary/40">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                              <div className="h-10 w-10 rounded-xl bg-secondary flex items-center justify-center">
-                                <Dumbbell className="h-5 w-5 text-muted-foreground" />
+                              <div className="h-10 w-10 rounded-xl bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                                <Dumbbell className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
                               </div>
                               <div>
                                 <h3 className="font-semibold group-hover:text-primary transition-colors">
@@ -182,11 +202,11 @@ export default async function LogsPage() {
                                 </div>
                               </div>
                             </div>
-                            <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                            <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
                           </div>
                           
                           {log.notes && (
-                            <div className="mt-3 pt-3 border-t border-border/50">
+                            <div className="mt-3 pt-3 border-t border-border/30 ml-[52px]">
                               <div className="flex items-start gap-2">
                                 <FileText className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
                                 <p className="text-sm text-muted-foreground line-clamp-2">

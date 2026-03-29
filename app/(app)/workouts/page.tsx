@@ -76,7 +76,7 @@ export default async function WorkoutsPage() {
                 className="animate-slide-up" 
                 style={{ animationDelay: `${index * 50}ms` }}
               >
-                <WorkoutCard workout={workout} />
+                <WorkoutCard workout={workout} showActions />
               </div>
             ))}
           </div>

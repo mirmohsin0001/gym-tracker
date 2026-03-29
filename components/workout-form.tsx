@@ -36,9 +36,10 @@ interface WorkoutFormProps {
   onSubmit: (data: { name: string; exercises: Exercise[] }) => Promise<void>
   initialData?: { name: string; exercises: Exercise[] }
   isSubmitting?: boolean
+  submitLabel?: string
 }
 
-export function WorkoutForm({ onSubmit, initialData, isSubmitting = false }: WorkoutFormProps) {
+export function WorkoutForm({ onSubmit, initialData, isSubmitting = false, submitLabel = 'Save Workout' }: WorkoutFormProps) {
   const form = useForm<WorkoutFormValues>({
     resolver: zodResolver(workoutFormSchema),
     defaultValues: initialData || {
@@ -225,7 +226,7 @@ export function WorkoutForm({ onSubmit, initialData, isSubmitting = false }: Wor
               Saving...
             </div>
           ) : (
-            'Save Workout'
+            submitLabel
           )}
         </Button>
       </form>

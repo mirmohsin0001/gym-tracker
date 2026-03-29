@@ -83,17 +83,31 @@ async function getStats(userId: string) {
 
   let streak = 0
   if (recentLogs && recentLogs.length > 0) {
-    const dates = recentLogs.map(l => l.date).sort().reverse()
+    // Deduplicate dates (multiple logs on same day) and sort descending
+    const uniqueDates = Array.from(new Set(recentLogs.map(l => l.date))).sort().reverse()
+    
+    // Use local date formatting to avoid UTC timezone mismatch
+    const getLocalDateStr = (d: Date) => {
+      const year = d.getFullYear()
+      const month = String(d.getMonth() + 1).padStart(2, '0')
+      const day = String(d.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
+    }
+    
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     
-    for (let i = 0; i < dates.length; i++) {
+    // Check consecutive days starting from today
+    for (let i = 0; i < 30; i++) {
       const checkDate = new Date(today)
       checkDate.setDate(checkDate.getDate() - i)
-      const checkStr = checkDate.toISOString().split('T')[0]
-      if (dates.includes(checkStr)) {
+      const checkStr = getLocalDateStr(checkDate)
+      if (uniqueDates.includes(checkStr)) {
         streak++
-      } else if (i > 0) {
+      } else if (i === 0) {
+        // No workout today - check if yesterday starts a streak
+        continue
+      } else {
         break
       }
     }

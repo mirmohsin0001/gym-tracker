@@ -154,21 +154,17 @@ export function WorkoutCalendar() {
           {(activeStartDate.getMonth() !== today.getMonth() || activeStartDate.getFullYear() !== today.getFullYear()) && (
             <button
               onClick={() => setActiveStartDate(new Date(today.getFullYear(), today.getMonth(), 1))}
-              className="px-3 py-1.5 text-xs font-medium text-primary border border-primary/50 rounded-lg hover:bg-primary/10 transition-colors"
+              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-primary-foreground bg-primary rounded-full hover:bg-primary/90 shadow-sm hover:shadow-md transition-all active:scale-95"
             >
-              Go to Today
+              <CalendarIcon className="h-3.5 w-3.5" />
+              Today
             </button>
           )}
         </div>
       </div>
       
       <div className="p-4">
-        <div className="flex justify-center relative">
-          {loadingDates && (
-            <div className="absolute inset-0 bg-card/50 flex items-center justify-center z-10 rounded-lg">
-              <div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-            </div>
-          )}
+        <div className="flex justify-center">
           <Calendar
             value={today}
             activeStartDate={activeStartDate}
@@ -193,7 +189,7 @@ export function WorkoutCalendar() {
         </div>
         
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="max-w-md mx-4 sm:mx-auto bg-card border-border">
+          <DialogContent className="max-w-md mx-4 sm:mx-auto bg-card border-border max-h-[85vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="font-display text-xl">
                 {selectedDate && new Date(selectedDate).toLocaleDateString('en-US', {

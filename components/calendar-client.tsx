@@ -68,29 +68,7 @@ export default function CalendarClient({
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <button
-          onClick={handlePrevMonth}
-          className="px-4 py-2 border rounded-md hover:bg-accent"
-          disabled={loading}
-        >
-          ← Previous
-        </button>
-        <h3 className="text-xl font-semibold">
-          {new Date(year, month - 1).toLocaleString('default', {
-            month: 'long',
-            year: 'numeric',
-          })}
-        </h3>
-        <button
-          onClick={handleNextMonth}
-          className="px-4 py-2 border rounded-md hover:bg-accent"
-          disabled={loading}
-        >
-          Next →
-        </button>
-      </div>
+    <div>
       <WorkoutCalendar />
     </div>
   )
