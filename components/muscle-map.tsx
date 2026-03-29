@@ -357,107 +357,144 @@ export function MuscleMap({ workoutLogs }: MuscleMapProps) {
         <div className="space-y-3">
           <h3 className="text-center text-sm font-medium text-muted-foreground">Back</h3>
           <div className="relative aspect-[1/2] w-full max-w-[200px] mx-auto">
-            <svg viewBox="0 0 200 400" className="w-full h-full">
+            <svg viewBox="0 0 200 420" className="w-full h-full">
               {/* Head */}
-              <ellipse cx="100" cy="30" rx="25" ry="28" fill="#4a4a4a" />
+              <circle cx="100" cy="25" r="22" fill="#5a5a5a" />
               
               {/* Neck */}
-              <rect x="90" y="55" width="20" height="15" fill="#4a4a4a" />
+              <path d="M92 46 L95 65 L105 65 L108 46 Q100 48 92 46" fill="#5a5a5a" />
               
-              {/* Traps (upper back) */}
+              {/* Clavicle/Shoulders outline */}
+              <path d="M60 65 Q100 55 140 65" stroke="#4a4a4a" strokeWidth="1.5" fill="none" opacity="0.5" />
+              
+              {/* Traps */}
               <path 
-                d="M70 70 Q100 55 130 70 L125 100 Q100 95 75 100 Z" 
+                d="M75 65 L95 58 L105 58 L125 65 L115 85 Q100 88 85 85 Z" 
                 fill={getMuscleColor('traps')} 
                 opacity={getMuscleOpacity('traps')}
               />
               
               {/* Rear Deltoids */}
-              <ellipse cx="60" cy="90" rx="15" ry="18" fill={getMuscleColor('rear-deltoid')} opacity={getMuscleOpacity('rear-deltoid')} />
-              <ellipse cx="140" cy="90" rx="15" ry="18" fill={getMuscleColor('rear-deltoid')} opacity={getMuscleOpacity('rear-deltoid')} />
-              
-              {/* Lats */}
               <path 
-                d="M70 100 L80 95 L80 140 L65 130 Q62 115 70 100" 
-                fill={getMuscleColor('lats')} 
-                opacity={getMuscleOpacity('lats')}
+                d="M55 70 Q48 85 50 105 L65 100 Q62 82 60 70 Z" 
+                fill={getMuscleColor('rear-deltoid')} 
+                opacity={getMuscleOpacity('rear-deltoid')}
               />
               <path 
-                d="M130 100 L120 95 L120 140 L135 130 Q138 115 130 100" 
-                fill={getMuscleColor('lats')} 
-                opacity={getMuscleOpacity('lats')}
+                d="M145 70 Q152 85 150 105 L135 100 Q138 82 140 70 Z" 
+                fill={getMuscleColor('rear-deltoid')} 
+                opacity={getMuscleOpacity('rear-deltoid')}
               />
               
-              {/* Mid back / Rhomboids */}
+              {/* Upper Back / Rhomboids */}
               <path 
-                d="M80 95 L100 90 L120 95 L120 140 Q100 145 80 140 Z" 
+                d="M78 85 L100 78 L122 85 L120 120 Q100 125 80 120 Z" 
                 fill={getMuscleColor('lats')} 
                 opacity={getMuscleOpacity('lats')}
               />
+              
+              {/* Lats - Upper Section */}
+              <path 
+                d="M70 100 L80 98 L90 115 L75 125 Q68 115 70 100" 
+                fill={getMuscleColor('lats')} 
+                opacity={getMuscleOpacity('lats')}
+              />
+              <path 
+                d="M130 100 L120 98 L110 115 L125 125 Q132 115 130 100" 
+                fill={getMuscleColor('lats')} 
+                opacity={getMuscleOpacity('lats')}
+              />
+              
+              {/* Lats - Lower Section */}
+              <path 
+                d="M68 125 L85 120 L95 185 L70 175 Q62 150 68 125" 
+                fill={getMuscleColor('lats')} 
+                opacity={getMuscleOpacity('lats')}
+              />
+              <path 
+                d="M132 125 L115 120 L105 185 L130 175 Q138 150 132 125" 
+                fill={getMuscleColor('lats')} 
+                opacity={getMuscleOpacity('lats')}
+              />
+              
+              {/* Lat definition line */}
+              <line x1="100" y1="85" x2="100" y2="185" stroke="#3a3a3a" strokeWidth="1" opacity="0.6" />
               
               {/* Triceps */}
-              <ellipse cx="48" cy="125" rx="10" ry="28" fill={getMuscleColor('triceps')} opacity={getMuscleOpacity('triceps')} />
-              <ellipse cx="152" cy="125" rx="10" ry="28" fill={getMuscleColor('triceps')} opacity={getMuscleOpacity('triceps')} />
+              <ellipse cx="52" cy="115" rx="13" ry="28" fill={getMuscleColor('triceps')} opacity={getMuscleOpacity('triceps')} />
+              <ellipse cx="148" cy="115" rx="13" ry="28" fill={getMuscleColor('triceps')} opacity={getMuscleOpacity('triceps')} />
               
               {/* Lower Back */}
               <path 
-                d="M80 140 Q100 145 120 140 L118 180 Q100 185 82 180 Z" 
+                d="M82 180 Q100 185 118 180 L125 210 Q100 215 75 210 Z" 
                 fill={getMuscleColor('lower-back')} 
                 opacity={getMuscleOpacity('lower-back')}
               />
               
               {/* Forearms */}
-              <ellipse cx="45" cy="165" rx="8" ry="25" fill={getMuscleColor('forearms')} opacity={getMuscleOpacity('forearms')} />
-              <ellipse cx="155" cy="165" rx="8" ry="25" fill={getMuscleColor('forearms')} opacity={getMuscleOpacity('forearms')} />
+              <ellipse cx="45" cy="155" rx="9" ry="28" fill={getMuscleColor('forearms')} opacity={getMuscleOpacity('forearms')} />
+              <ellipse cx="155" cy="155" rx="9" ry="28" fill={getMuscleColor('forearms')} opacity={getMuscleOpacity('forearms')} />
               
               {/* Hands */}
-              <ellipse cx="42" cy="200" rx="8" ry="12" fill="#4a4a4a" />
-              <ellipse cx="158" cy="200" rx="8" ry="12" fill="#4a4a4a" />
+              <rect x="38" y="188" width="14" height="20" rx="4" fill="#5a5a5a" />
+              <rect x="148" y="188" width="14" height="20" rx="4" fill="#5a5a5a" />
+              
+              {/* Hip/Pelvis line */}
+              <path d="M70 210 Q100 212 130 210" stroke="#4a4a4a" strokeWidth="1.5" fill="none" opacity="0.4" />
               
               {/* Glutes */}
-              <ellipse cx="85" cy="200" rx="18" ry="20" fill={getMuscleColor('glutes')} opacity={getMuscleOpacity('glutes')} />
-              <ellipse cx="115" cy="200" rx="18" ry="20" fill={getMuscleColor('glutes')} opacity={getMuscleOpacity('glutes')} />
+              <ellipse cx="82" cy="225" rx="16" ry="22" fill={getMuscleColor('glutes')} opacity={getMuscleOpacity('glutes')} />
+              <ellipse cx="118" cy="225" rx="16" ry="22" fill={getMuscleColor('glutes')} opacity={getMuscleOpacity('glutes')} />
               
-              {/* Hamstrings */}
+              {/* Glute separation line */}
+              <line x1="100" y1="210" x2="100" y2="245" stroke="#3a3a3a" strokeWidth="1" opacity="0.6" />
+              
+              {/* Hamstrings - Outer */}
               <path 
-                d="M70 220 L90 215 L90 285 L70 285 Q65 250 70 220" 
+                d="M70 250 L82 248 L88 315 L65 310 Q62 280 70 250" 
                 fill={getMuscleColor('hamstrings')} 
                 opacity={getMuscleOpacity('hamstrings')}
               />
               <path 
-                d="M130 220 L110 215 L110 285 L130 285 Q135 250 130 220" 
+                d="M130 250 L118 248 L112 315 L135 310 Q138 280 130 250" 
                 fill={getMuscleColor('hamstrings')} 
                 opacity={getMuscleOpacity('hamstrings')}
               />
+              
+              {/* Hamstrings - Center */}
+              <path 
+                d="M82 250 L100 248 L105 315 L88 315 Z" 
+                fill={getMuscleColor('hamstrings')} 
+                opacity={getMuscleOpacity('hamstrings')}
+              />
+              <path 
+                d="M118 250 L100 248 L95 315 L112 315 Z" 
+                fill={getMuscleColor('hamstrings')} 
+                opacity={getMuscleOpacity('hamstrings')}
+              />
+              
+              {/* Hamstring definition line */}
+              <line x1="100" y1="250" x2="100" y2="315" stroke="#3a3a3a" strokeWidth="1" opacity="0.6" />
               
               {/* Knees */}
-              <ellipse cx="80" cy="290" rx="12" ry="10" fill="#4a4a4a" />
-              <ellipse cx="120" cy="290" rx="12" ry="10" fill="#4a4a4a" />
+              <ellipse cx="80" cy="325" rx="14" ry="12" fill="#5a5a5a" />
+              <ellipse cx="120" cy="325" rx="14" ry="12" fill="#5a5a5a" />
               
               {/* Calves */}
               <path 
-                d="M68 300 L90 300 L88 340 Q78 355 70 340 Q66 320 68 300" 
+                d="M68 335 L92 332 L88 395 L65 395 Q62 365 68 335" 
                 fill={getMuscleColor('calves')} 
                 opacity={getMuscleOpacity('calves')}
               />
               <path 
-                d="M132 300 L110 300 L112 340 Q122 355 130 340 Q134 320 132 300" 
+                d="M132 335 L108 332 L112 395 L135 395 Q138 365 132 335" 
                 fill={getMuscleColor('calves')} 
                 opacity={getMuscleOpacity('calves')}
-              />
-              
-              {/* Lower calves */}
-              <path 
-                d="M70 340 L88 340 L85 370 L72 370 Z" 
-                fill="#4a4a4a"
-              />
-              <path 
-                d="M130 340 L112 340 L115 370 L128 370 Z" 
-                fill="#4a4a4a"
               />
               
               {/* Feet */}
-              <ellipse cx="78" cy="380" rx="12" ry="8" fill="#4a4a4a" />
-              <ellipse cx="122" cy="380" rx="12" ry="8" fill="#4a4a4a" />
+              <ellipse cx="75" cy="405" rx="13" ry="10" fill="#5a5a5a" />
+              <ellipse cx="125" cy="405" rx="13" ry="10" fill="#5a5a5a" />
             </svg>
           </div>
         </div>
