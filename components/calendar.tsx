@@ -123,16 +123,26 @@ export function WorkoutCalendar({ year, month, loggedDates }: WorkoutCalendarPro
   return (
     <div className="rounded-2xl bg-card border border-border/50 overflow-hidden">
       <div className="p-5 border-b border-border/50">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-            <CalendarIcon className="h-5 w-5 text-blue-500" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+              <CalendarIcon className="h-5 w-5 text-blue-500" />
+            </div>
+            <div>
+              <h3 className="font-display font-semibold text-lg">Activity Calendar</h3>
+              <p className="text-xs text-muted-foreground">
+                Track your workout consistency
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-display font-semibold text-lg">Activity Calendar</h3>
-            <p className="text-xs text-muted-foreground">
-              Track your workout consistency
-            </p>
-          </div>
+          {(activeStartDate.getMonth() !== today.getMonth() || activeStartDate.getFullYear() !== today.getFullYear()) && (
+            <button
+              onClick={() => setActiveStartDate(new Date(today.getFullYear(), today.getMonth(), 1))}
+              className="px-3 py-1.5 text-xs font-medium text-primary border border-primary/50 rounded-lg hover:bg-primary/10 transition-colors"
+            >
+              Go to Today
+            </button>
+          )}
         </div>
       </div>
       
@@ -156,7 +166,7 @@ export function WorkoutCalendar({ year, month, loggedDates }: WorkoutCalendarPro
             <span>Workout logged</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="h-2 w-2 rounded-full bg-primary/30 ring-2 ring-primary/50" />
+            <div className="h-2 w-2 rounded-full bg-transparent border-2 border-primary" />
             <span>Today</span>
           </div>
         </div>
@@ -278,13 +288,15 @@ export function WorkoutCalendar({ year, month, loggedDates }: WorkoutCalendarPro
             background-color: hsl(0 0% 15%);
           }
           .react-calendar__tile--today {
-            background: hsl(142 76% 46% / 0.15) !important;
+            background: transparent !important;
             color: hsl(142 76% 46%) !important;
             font-weight: 700;
+            border: 2px solid hsl(142 76% 46%) !important;
           }
           .react-calendar__tile--now {
-            background: hsl(142 76% 46% / 0.15);
+            background: transparent;
             color: hsl(142 76% 46%);
+            border: 2px solid hsl(142 76% 46%);
           }
           .react-calendar__tile--active {
             background: hsl(142 76% 46%) !important;
