@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { WorkoutCard } from '@/components/workout-card'
 import { Button } from '@/components/ui/button'
-import { Plus, ArrowLeft } from 'lucide-react'
+import { Plus, ArrowLeft, Dumbbell, Search } from 'lucide-react'
 import { Workout } from '@/app/lib/types'
 import LogoutButton from '@/components/logout-button'
 
@@ -35,53 +35,72 @@ export default async function WorkoutsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b">
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/dashboard">
-            <h1 className="text-xl sm:text-2xl font-bold cursor-pointer hover:opacity-80">Gym Tracker</h1>
+          <Link href="/dashboard" className="flex items-center gap-3 group">
+            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center glow-sm group-hover:glow transition-all">
+              <Dumbbell className="h-5 w-5 text-primary" />
+            </div>
+            <span className="text-xl font-display font-bold tracking-tight">GYMTRACK</span>
           </Link>
           <LogoutButton />
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-4 sm:py-8">
+      <main className="container mx-auto px-4 py-6 sm:py-10">
+        {/* Back Button */}
         <Link href="/dashboard">
-          <Button variant="ghost" size="sm" className="mb-5 sm:mb-6">
+          <Button variant="ghost" size="sm" className="mb-6 -ml-2 text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Dashboard
           </Button>
         </Link>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+
+        {/* Header Section */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mb-8">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">My Workouts</h2>
-            <p className="text-sm sm:text-base text-muted-foreground">
-              Manage and track your workout routines
+            <h1 className="text-3xl sm:text-4xl font-display font-bold tracking-tight">
+              My Workouts
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              {workouts.length} {workouts.length === 1 ? 'workout' : 'workouts'} created
             </p>
           </div>
           <Link href="/workouts/new" className="w-full sm:w-auto">
-            <Button className="w-full sm:w-auto">
-              <Plus className="h-4 w-4 mr-2" />
+            <Button size="lg" className="w-full sm:w-auto gap-2 glow font-semibold">
+              <Plus className="h-5 w-5" />
               New Workout
             </Button>
           </Link>
         </div>
 
         {workouts.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground mb-4 text-lg">
-              No workouts yet. Create your first workout to get started!
+          <div className="rounded-2xl border border-dashed border-border bg-card/50 p-12 sm:p-16 text-center">
+            <div className="mx-auto w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
+              <Dumbbell className="h-10 w-10 text-primary" />
+            </div>
+            <h2 className="text-2xl font-display font-bold mb-3">No workouts yet</h2>
+            <p className="text-muted-foreground mb-8 max-w-md mx-auto">
+              Create your first workout routine to start tracking your fitness journey. Every champion starts somewhere.
             </p>
             <Link href="/workouts/new">
-              <Button size="lg">
-                <Plus className="h-4 w-4 mr-2" />
-                Create Workout
+              <Button size="lg" className="gap-2 glow">
+                <Plus className="h-5 w-5" />
+                Create Your First Workout
               </Button>
             </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {workouts.map((workout) => (
-              <WorkoutCard key={workout.id} workout={workout} />
+            {workouts.map((workout, index) => (
+              <div 
+                key={workout.id} 
+                className="animate-slide-up" 
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <WorkoutCard workout={workout} />
+              </div>
             ))}
           </div>
         )}
@@ -89,4 +108,3 @@ export default async function WorkoutsPage() {
     </div>
   )
 }
-

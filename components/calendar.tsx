@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import Calendar from 'react-calendar'
 import 'react-calendar/dist/Calendar.css'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -11,15 +10,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Calendar as CalendarIcon, Dumbbell } from 'lucide-react'
+import { Calendar as CalendarIcon, Dumbbell, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-
-interface WorkoutCalendarProps {
-  year: number
-  month: number
-  loggedDates: string[] // YYYY-MM-DD format
-}
 
 interface WorkoutLogWithDetails {
   id: string
@@ -39,22 +31,43 @@ interface WorkoutLogWithDetails {
   }
 }
 
-export function WorkoutCalendar({ year, month, loggedDates }: WorkoutCalendarProps) {
-  const [activeStartDate, setActiveStartDate] = useState<Date>(new Date(year, month - 1, 1))
+export function WorkoutCalendar() {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-
-  useEffect(() => {
-    setActiveStartDate(new Date(year, month - 1, 1))
-  }, [year, month])
+  
+  const [activeStartDate, setActiveStartDate] = useState<Date>(new Date(today.getFullYear(), today.getMonth(), 1))
+  const [loggedDates, setLoggedDates] = useState<string[]>([])
+  const [loadingDates, setLoadingDates] = useState(false)
 
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [workouts, setWorkouts] = useState<WorkoutLogWithDetails[]>([])
   const [loading, setLoading] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
 
+  // Fetch logged dates for the current view month
+  const fetchLoggedDates = async (year: number, month: number) => {
+    setLoadingDates(true)
+    try {
+      const response = await fetch(`/api/workout-logs/dates?year=${year}&month=${month}`)
+      if (response.ok) {
+        const data = await response.json()
+        setLoggedDates(data.dates || [])
+      }
+    } catch (error) {
+      console.error('Error fetching logged dates:', error)
+    } finally {
+      setLoadingDates(false)
+    }
+  }
+
+  // Fetch dates when month changes
+  useEffect(() => {
+    const year = activeStartDate.getFullYear()
+    const month = activeStartDate.getMonth() + 1
+    fetchLoggedDates(year, month)
+  }, [activeStartDate])
+
   const fetchWorkoutsForDate = async (date: Date) => {
-    // Format the date as local YYYY-MM-DD to avoid UTC offset shifting the day
     const yyyy = date.getFullYear()
     const mm = String(date.getMonth() + 1).padStart(2, '0')
     const dd = String(date.getDate()).padStart(2, '0')
@@ -84,7 +97,7 @@ export function WorkoutCalendar({ year, month, loggedDates }: WorkoutCalendarPro
     if (loggedDates.includes(dateStr)) {
       return (
         <div className="flex justify-center mt-1">
-          <div className="h-1.5 w-1.5 bg-green-500 rounded-full" />
+          <div className="h-1.5 w-1.5 bg-primary rounded-full animate-pulse" />
         </div>
       )
     }
@@ -124,18 +137,38 @@ export function WorkoutCalendar({ year, month, loggedDates }: WorkoutCalendarPro
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center gap-2">
-          <CalendarIcon className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-          <CardTitle className="text-lg sm:text-xl">Workout Calendar</CardTitle>
+    <div className="rounded-2xl bg-card border border-border/50 overflow-hidden">
+      <div className="p-5 border-b border-border/50">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+              <CalendarIcon className="h-5 w-5 text-blue-500" />
+            </div>
+            <div>
+              <h3 className="font-display font-semibold text-lg">Activity Calendar</h3>
+              <p className="text-xs text-muted-foreground">
+                Track your workout consistency
+              </p>
+            </div>
+          </div>
+          {(activeStartDate.getMonth() !== today.getMonth() || activeStartDate.getFullYear() !== today.getFullYear()) && (
+            <button
+              onClick={() => setActiveStartDate(new Date(today.getFullYear(), today.getMonth(), 1))}
+              className="px-3 py-1.5 text-xs font-medium text-primary border border-primary/50 rounded-lg hover:bg-primary/10 transition-colors"
+            >
+              Go to Today
+            </button>
+          )}
         </div>
-        <CardDescription className="text-xs sm:text-sm">
-          Green dots indicate days you logged workouts
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="flex justify-center">
+      </div>
+      
+      <div className="p-4">
+        <div className="flex justify-center relative">
+          {loadingDates && (
+            <div className="absolute inset-0 bg-card/50 flex items-center justify-center z-10 rounded-lg">
+              <div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
           <Calendar
             value={today}
             activeStartDate={activeStartDate}
@@ -148,43 +181,66 @@ export function WorkoutCalendar({ year, month, loggedDates }: WorkoutCalendarPro
           />
         </div>
         
+        <div className="mt-4 flex items-center justify-center gap-4 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            <div className="h-2 w-2 rounded-full bg-primary" />
+            <span>Workout logged</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="h-2 w-2 rounded-full bg-transparent border-2 border-primary" />
+            <span>Today</span>
+          </div>
+        </div>
+        
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto mx-4 sm:mx-0">
+          <DialogContent className="max-w-md mx-4 sm:mx-auto bg-card border-border">
             <DialogHeader>
-              <DialogTitle className="text-lg sm:text-xl">
-                Workouts on {selectedDate && new Date(selectedDate).toLocaleDateString('en-US', {
+              <DialogTitle className="font-display text-xl">
+                {selectedDate && new Date(selectedDate).toLocaleDateString('en-US', {
                   weekday: 'long',
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric'
                 })}
               </DialogTitle>
-              <DialogDescription className="text-sm">
-                Click on a workout to view details
+              <DialogDescription>
+                Workouts completed on this day
               </DialogDescription>
             </DialogHeader>
             {loading ? (
-              <div className="py-8 text-center text-muted-foreground">Loading...</div>
+              <div className="py-8 text-center">
+                <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+                <p className="text-muted-foreground mt-3">Loading workouts...</p>
+              </div>
             ) : workouts.length === 0 ? (
               <div className="py-8 text-center text-muted-foreground">
                 No workouts logged for this date
               </div>
             ) : (
-              <div className="space-y-3 mt-4">
+              <div className="space-y-3 mt-2">
                 {workouts.map((log) => (
                   <Link key={log.id} href={`/workouts/${log.workout_id}`}>
-                    <div className="p-4 border rounded-lg hover:bg-accent/50 transition-colors cursor-pointer">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Dumbbell className="h-4 w-4 text-primary" />
-                        <h3 className="font-semibold">{log.workouts.name}</h3>
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {log.workouts.exercises.length} {log.workouts.exercises.length === 1 ? 'exercise' : 'exercises'}
+                    <div className="group p-4 rounded-xl bg-secondary/50 border border-border/50 hover:border-primary/50 transition-all cursor-pointer">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                            <Dumbbell className="h-5 w-5 text-primary" />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold group-hover:text-primary transition-colors">
+                              {log.workouts.name}
+                            </h3>
+                            <p className="text-xs text-muted-foreground">
+                              {log.workouts.exercises.length} exercises
+                            </p>
+                          </div>
+                        </div>
+                        <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
                       </div>
                       {log.notes && (
-                        <div className="mt-2 text-sm text-muted-foreground italic">
-                          "{log.notes}"
-                        </div>
+                        <p className="mt-3 text-sm text-muted-foreground italic border-t border-border/50 pt-3">
+                          &ldquo;{log.notes}&rdquo;
+                        </p>
                       )}
                     </div>
                   </Link>
@@ -193,89 +249,90 @@ export function WorkoutCalendar({ year, month, loggedDates }: WorkoutCalendarPro
             )}
           </DialogContent>
         </Dialog>
+        
         <style jsx global>{`
           .react-calendar {
             width: 100%;
             background: transparent;
             border: none;
-            font-family: inherit;
+            font-family: var(--font-inter), system-ui, sans-serif;
           }
           .react-calendar__navigation {
             display: flex;
-            height: 36px;
+            height: 40px;
             margin-bottom: 0.75em;
           }
           .react-calendar__navigation button {
-            min-width: 32px;
+            min-width: 36px;
             background: none;
             font-size: 14px;
-            margin-top: 4px;
-          }
-          @media (min-width: 640px) {
-            .react-calendar__navigation {
-              height: 44px;
-              margin-bottom: 1em;
-            }
-            .react-calendar__navigation button {
-              min-width: 44px;
-              font-size: 16px;
-              margin-top: 8px;
-            }
+            color: hsl(0 0% 95%);
+            font-weight: 600;
+            border-radius: 8px;
           }
           .react-calendar__navigation button:enabled:hover,
           .react-calendar__navigation button:enabled:focus {
-            background-color: hsl(var(--accent));
+            background-color: hsl(0 0% 12%);
+          }
+          .react-calendar__navigation button:disabled {
+            color: hsl(0 0% 40%);
           }
           .react-calendar__month-view__weekdays {
             text-align: center;
             text-transform: uppercase;
-            font-weight: bold;
-            font-size: 0.75em;
-            color: hsl(var(--muted-foreground));
+            font-weight: 600;
+            font-size: 0.65em;
+            color: hsl(0 0% 50%);
+            letter-spacing: 0.05em;
+          }
+          .react-calendar__month-view__weekdays abbr {
+            text-decoration: none;
           }
           .react-calendar__month-view__days__day--weekend {
-            color: hsl(var(--foreground));
+            color: hsl(0 0% 95%);
+          }
+          .react-calendar__month-view__days__day--neighboringMonth {
+            color: hsl(0 0% 30%);
           }
           .react-calendar__tile {
             max-width: 100%;
-            padding: 8px 4px;
+            padding: 10px 4px;
             background: none;
             text-align: center;
-            line-height: 16px;
-            font-size: 0.75em;
-          }
-          @media (min-width: 640px) {
-            .react-calendar__tile {
-              padding: 10px 6.6667px;
-              font-size: 0.833em;
-            }
+            font-size: 0.85em;
+            color: hsl(0 0% 80%);
+            border-radius: 8px;
+            transition: all 0.15s ease;
           }
           .react-calendar__tile:enabled:hover,
           .react-calendar__tile:enabled:focus {
-            background-color: hsl(var(--accent));
-            border-radius: 4px;
+            background-color: hsl(0 0% 15%);
           }
-          .react-calendar__tile--today {
-            background: hsl(var(--accent));
-            border-radius: 4px;
-            font-weight: bold;
+          .react-calendar__tile--now,
+          .react-calendar__tile--today,
+          .react-calendar__tile--now.react-calendar__tile--active,
+          .react-calendar__tile--today.react-calendar__tile--active {
+            background: transparent !important;
+            color: hsl(142 76% 46%) !important;
+            font-weight: 700;
+            border: 2px solid hsl(142 76% 46%) !important;
+            box-sizing: border-box;
           }
-          .react-calendar__tile--now {
-            background: hsl(var(--accent));
-            border-radius: 4px;
+          .react-calendar__tile--now:enabled:hover,
+          .react-calendar__tile--today:enabled:hover {
+            background: hsl(142 76% 46% / 0.1) !important;
           }
-          .react-calendar__tile--active {
-            background: hsl(var(--primary));
-            color: hsl(var(--primary-foreground));
-            border-radius: 4px;
+          .react-calendar__tile--active:not(.react-calendar__tile--now):not(.react-calendar__tile--today) {
+            background: hsl(0 0% 20%) !important;
+            color: hsl(0 0% 95%) !important;
+            font-weight: 600;
           }
-          .react-calendar__tile--active:enabled:hover,
-          .react-calendar__tile--active:enabled:focus {
-            background: hsl(var(--primary));
+          .react-calendar__tile--active:not(.react-calendar__tile--now):not(.react-calendar__tile--today):enabled:hover,
+          .react-calendar__tile--active:not(.react-calendar__tile--now):not(.react-calendar__tile--today):enabled:focus {
+            background: hsl(0 0% 25%) !important;
           }
         `}</style>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }
-

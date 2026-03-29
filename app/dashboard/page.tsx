@@ -4,10 +4,10 @@ import Link from 'next/link'
 import { WorkoutCalendar } from '@/components/calendar'
 import { WorkoutCard } from '@/components/workout-card'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Plus, LogOut } from 'lucide-react'
+import { Plus, Dumbbell, Flame, Target, TrendingUp, Calendar, User, ClipboardList } from 'lucide-react'
 import { Workout } from '@/app/lib/types'
 import LogoutButton from '@/components/logout-button'
+import { QuickLogDialog } from '@/components/quick-log-dialog'
 
 async function getWorkouts(userId: string) {
   const supabase = createClient()
@@ -26,26 +26,57 @@ async function getWorkouts(userId: string) {
   return data as Workout[]
 }
 
-async function getLoggedDates(userId: string, year: number, month: number) {
-  const supabase = createClient()
-  const startDate = `${year}-${String(month).padStart(2, '0')}-01`
-  const nextMonth = month === 12 ? 1 : month + 1
-  const nextYear = month === 12 ? year + 1 : year
-  const endDate = `${nextYear}-${String(nextMonth).padStart(2, '0')}-01`
 
-  const { data, error } = await supabase
+
+async function getStats(userId: string) {
+  const supabase = createClient()
+  
+  // Get total workouts
+  const { count: totalWorkouts } = await supabase
+    .from('workouts')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId)
+
+  // Get this month's logs
+  const now = new Date()
+  const startOfMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
+  const { count: monthLogs } = await supabase
+    .from('workout_logs')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .gte('date', startOfMonth)
+
+  // Get current streak (simplified)
+  const { data: recentLogs } = await supabase
     .from('workout_logs')
     .select('date')
     .eq('user_id', userId)
-    .gte('date', startDate)
-    .lt('date', endDate)
+    .order('date', { ascending: false })
+    .limit(30)
 
-  if (error) {
-    console.error('Error fetching workout logs:', error)
-    return []
+  let streak = 0
+  if (recentLogs && recentLogs.length > 0) {
+    const dates = recentLogs.map(l => l.date).sort().reverse()
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    for (let i = 0; i < dates.length; i++) {
+      const checkDate = new Date(today)
+      checkDate.setDate(checkDate.getDate() - i)
+      const checkStr = checkDate.toISOString().split('T')[0]
+      if (dates.includes(checkStr)) {
+        streak++
+      } else if (i > 0) {
+        break
+      }
+    }
   }
 
-  return (data || []).map(log => log.date as string)
+  return {
+    totalWorkouts: totalWorkouts || 0,
+    monthLogs: monthLogs || 0,
+    streak
+  }
 }
 
 export default async function DashboardPage() {
@@ -56,107 +87,159 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
-  const now = new Date()
-  const currentYear = now.getFullYear()
-  const currentMonth = now.getMonth() + 1
-
-  const [workouts, loggedDates] = await Promise.all([
+  const [workouts, stats] = await Promise.all([
     getWorkouts(user.id),
-    getLoggedDates(user.id, currentYear, currentMonth),
+    getStats(user.id),
   ])
+
+  const userName = user.user_metadata?.name || user.email?.split('@')[0] || 'Champion'
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b">
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Gym Tracker</h1>
-          <LogoutButton />
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center glow-sm">
+              <Dumbbell className="h-5 w-5 text-primary" />
+            </div>
+            <span className="text-xl font-display font-bold tracking-tight">GYMTRACK</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link href="/body">
+              <Button variant="outline" size="sm" className="gap-2">
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline">Body Map</span>
+              </Button>
+            </Link>
+            <Link href="/logs">
+              <Button variant="outline" size="sm" className="gap-2">
+                <ClipboardList className="h-4 w-4" />
+                <span className="hidden sm:inline">Logs</span>
+              </Button>
+            </Link>
+            <LogoutButton />
+          </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-4 sm:py-8 space-y-6 sm:space-y-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard</h2>
-            <p className="text-sm sm:text-base text-muted-foreground">
-              Track your workouts and progress
+      <main className="container mx-auto px-4 py-6 sm:py-10 space-y-8">
+        {/* Hero Section */}
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <p className="text-muted-foreground text-sm font-medium uppercase tracking-wider">
+              Welcome back
+            </p>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold tracking-tight">
+              Hey, <span className="text-gradient">{userName}</span>
+            </h1>
+            <p className="text-muted-foreground text-base sm:text-lg max-w-md">
+              {"Let's crush your fitness goals today. Every rep counts."}
             </p>
           </div>
-          <Link href="/workouts/new" className="hidden sm:block">
-            <Button className="w-full sm:w-auto">
-              <Plus className="h-4 w-4 mr-2" />
-              New Workout
-            </Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <QuickLogDialog />
+            <Link href="/workouts/new" className="w-full sm:w-auto">
+              <Button size="lg" className="w-full sm:w-auto gap-2 glow font-semibold text-base">
+                <Plus className="h-5 w-5" />
+                New Workout
+              </Button>
+            </Link>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-          <div className="lg:col-span-2 order-2 lg:order-1">
-            <Card>
-              <CardHeader>
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                  <CardTitle className="text-lg sm:text-xl">My Workouts</CardTitle>
-                  {/* Buttons container: on mobile show buttons inline, equal width, full available width */}
-                  <div className="flex w-full gap-2 items-center sm:w-auto">
-                    <Link href="/workouts" className="flex-1 sm:w-auto">
-                      <Button
-                        variant="outline"
-                        className="w-full px-3 py-1 text-sm sm:w-auto sm:px-4 sm:py-2"
-                      >
-                        View All
-                      </Button>
-                    </Link>
-                    {/* Mobile-only New Workout button (shares width with View All) */}
-                    <Link href="/workouts/new" className="flex-1 sm:hidden">
-                      <Button className="w-full px-3 py-1 text-sm sm:px-4 sm:py-2">
-                        <Plus className="h-4 w-4 mr-2" />
-                        New Workout
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-                <CardDescription className="hidden sm:block">
-                  Your recently created workouts
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {/* Mobile-only description placed inside CardContent */}
-                <CardDescription className="sm:hidden mb-2">
-                  Your recently created workouts
-                </CardDescription>
-                {workouts.length === 0 ? (
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground mb-4">
-                      No workouts yet. Create your first workout to get started!
-                    </p>
-                    <Link href="/workouts/new">
-                      <Button>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Create Workout
-                      </Button>
-                    </Link>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                    {workouts.map((workout) => (
-                      <WorkoutCard key={workout.id} workout={workout} />
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="group relative overflow-hidden rounded-2xl bg-card border border-border/50 p-5 transition-all hover:border-primary/50 hover:glow-sm">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Target className="h-5 w-5 text-primary" />
+              </div>
+            </div>
+            <p className="text-3xl sm:text-4xl font-display font-bold">{stats.totalWorkouts}</p>
+            <p className="text-sm text-muted-foreground mt-1">Total Workouts</p>
           </div>
 
-          <div className="order-1 lg:order-2">
-            <WorkoutCalendar
-              year={currentYear}
-              month={currentMonth}
-              loggedDates={loggedDates}
-            />
+          <div className="group relative overflow-hidden rounded-2xl bg-card border border-border/50 p-5 transition-all hover:border-orange-500/50">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="h-10 w-10 rounded-xl bg-orange-500/10 flex items-center justify-center">
+                <Flame className="h-5 w-5 text-orange-500" />
+              </div>
+            </div>
+            <p className="text-3xl sm:text-4xl font-display font-bold">{stats.streak}</p>
+            <p className="text-sm text-muted-foreground mt-1">Day Streak</p>
+          </div>
+
+          <div className="group relative overflow-hidden rounded-2xl bg-card border border-border/50 p-5 transition-all hover:border-blue-500/50">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                <Calendar className="h-5 w-5 text-blue-500" />
+              </div>
+            </div>
+            <p className="text-3xl sm:text-4xl font-display font-bold">{stats.monthLogs}</p>
+            <p className="text-sm text-muted-foreground mt-1">This Month</p>
+          </div>
+
+          <div className="group relative overflow-hidden rounded-2xl bg-card border border-border/50 p-5 transition-all hover:border-emerald-500/50">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="h-10 w-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                <TrendingUp className="h-5 w-5 text-emerald-500" />
+              </div>
+            </div>
+            <p className="text-3xl sm:text-4xl font-display font-bold">{stats.monthLogs}</p>
+            <p className="text-sm text-muted-foreground mt-1">Days Active</p>
+          </div>
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Workouts Section */}
+          <div className="lg:col-span-2 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-display font-bold">My Workouts</h2>
+                <p className="text-sm text-muted-foreground mt-0.5">Your workout routines</p>
+              </div>
+              <Link href="/workouts">
+                <Button variant="outline" size="sm" className="gap-2">
+                  View All
+                </Button>
+              </Link>
+            </div>
+
+            {workouts.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-border bg-card/50 p-12 text-center">
+                <div className="mx-auto w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
+                  <Dumbbell className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">No workouts yet</h3>
+                <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+                  Create your first workout routine to start tracking your fitness journey
+                </p>
+                <Link href="/workouts/new">
+                  <Button className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Create Workout
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {workouts.map((workout, index) => (
+                  <div key={workout.id} className="animate-slide-up" style={{ animationDelay: `${index * 50}ms` }}>
+                    <WorkoutCard workout={workout} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Calendar Section */}
+          <div className="space-y-4">
+            <WorkoutCalendar />
           </div>
         </div>
       </main>
     </div>
   )
 }
-
