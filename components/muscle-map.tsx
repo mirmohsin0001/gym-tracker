@@ -266,19 +266,28 @@ export function MuscleMap({ workoutLogs }: MuscleMapProps) {
               <ellipse cx="42" cy="200" rx="8" ry="12" fill="#4a4a4a" />
               <ellipse cx="158" cy="200" rx="8" ry="12" fill="#4a4a4a" />
               
-              {/* Quads */}
+              {/* Quads - Left leg */}
               <path 
-                d="M75 185 L85 185 L90 280 L70 280 Q68 230 75 185" 
+                d="M75 190 L88 185 L90 280 L70 280 Q68 235 75 190" 
+                fill={getMuscleColor('quads')} 
+                opacity={getMuscleOpacity('quads')}
+              />
+              
+              {/* Quads - Right leg */}
+              <path 
+                d="M125 190 L112 185 L110 280 L130 280 Q132 235 125 190" 
+                fill={getMuscleColor('quads')} 
+                opacity={getMuscleOpacity('quads')}
+              />
+              
+              {/* Quads - Inner thigh (with clear separation) */}
+              <path 
+                d="M88 185 L95 188 L95 280 L90 280 Z" 
                 fill={getMuscleColor('quads')} 
                 opacity={getMuscleOpacity('quads')}
               />
               <path 
-                d="M125 185 L115 185 L110 280 L130 280 Q132 230 125 185" 
-                fill={getMuscleColor('quads')} 
-                opacity={getMuscleOpacity('quads')}
-              />
-              <path 
-                d="M85 185 L100 190 L115 185 L110 280 L90 280 Z" 
+                d="M112 185 L105 188 L105 280 L110 280 Z" 
                 fill={getMuscleColor('quads')} 
                 opacity={getMuscleOpacity('quads')}
               />
