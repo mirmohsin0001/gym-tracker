@@ -287,16 +287,13 @@ export function WorkoutCalendar({ year, month, loggedDates }: WorkoutCalendarPro
           .react-calendar__tile:enabled:focus {
             background-color: hsl(0 0% 15%);
           }
-          .react-calendar__tile--today {
+          .react-calendar__tile--today,
+          .react-calendar__tile--now {
             background: transparent !important;
             color: hsl(142 76% 46%) !important;
             font-weight: 700;
             border: 2px solid hsl(142 76% 46%) !important;
-          }
-          .react-calendar__tile--now {
-            background: transparent;
-            color: hsl(142 76% 46%);
-            border: 2px solid hsl(142 76% 46%);
+            box-sizing: border-box;
           }
           .react-calendar__tile--active {
             background: hsl(142 76% 46%) !important;
