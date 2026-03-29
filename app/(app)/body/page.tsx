@@ -1,11 +1,17 @@
 import { createClient } from '@/app/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Dumbbell, ArrowLeft, User, Calendar, TrendingUp, ClipboardList } from 'lucide-react'
-import LogoutButton from '@/components/logout-button'
-import { MuscleMap } from '@/components/muscle-map'
+import dynamic from 'next/dynamic'
+import { User, Calendar, TrendingUp } from 'lucide-react'
 import { Workout } from '@/app/lib/types'
+
+const MuscleMap = dynamic(
+  () => import('@/components/muscle-map').then((mod) => mod.MuscleMap),
+  {
+    loading: () => (
+      <div className="min-h-[280px] rounded-xl bg-muted/40 animate-pulse" aria-hidden />
+    ),
+  }
+)
 
 async function getRecentWorkoutLogs(userId: string) {
   const supabase = createClient()
@@ -92,56 +98,14 @@ export default async function BodyPage() {
   ])
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link href="/dashboard">
-              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center glow-sm hover:bg-primary/20 transition-colors">
-                <Dumbbell className="h-5 w-5 text-primary" />
-              </div>
-            </Link>
-            <span className="text-xl font-display font-bold tracking-tight">GYMTRACK</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/body">
-              <Button variant="outline" size="sm" className="gap-2 border-primary/50 text-primary">
-                <User className="h-4 w-4" />
-                <span className="hidden sm:inline">Body Map</span>
-              </Button>
-            </Link>
-            <Link href="/logs">
-              <Button variant="outline" size="sm" className="gap-2">
-                <ClipboardList className="h-4 w-4" />
-                <span className="hidden sm:inline">Logs</span>
-              </Button>
-            </Link>
-            <LogoutButton />
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-6 sm:py-10 space-y-8">
-        {/* Back button and title */}
-        <div className="space-y-4">
-          <Link href="/dashboard">
-            <Button variant="ghost" size="sm" className="gap-2 -ml-2 text-muted-foreground hover:text-foreground">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Dashboard
-            </Button>
-          </Link>
-          
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <h1 className="text-3xl sm:text-4xl font-display font-bold tracking-tight">
-                Body <span className="text-gradient">Map</span>
-              </h1>
-              <p className="text-muted-foreground">
-                See which muscles you&apos;ve trained recently
-              </p>
-            </div>
-          </div>
+    <div className="container mx-auto px-4 py-6 sm:py-10 space-y-8">
+        <div className="space-y-1">
+          <h1 className="text-3xl sm:text-4xl font-display font-bold tracking-tight">
+            Body <span className="text-gradient">Map</span>
+          </h1>
+          <p className="text-muted-foreground">
+            See which muscles you&apos;ve trained recently
+          </p>
         </div>
 
         {/* Stats */}
@@ -200,7 +164,6 @@ export default async function BodyPage() {
             </li>
           </ul>
         </div>
-      </main>
     </div>
   )
 }

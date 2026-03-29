@@ -1,7 +1,16 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { WorkoutCalendar } from '@/components/calendar'
+import dynamic from 'next/dynamic'
+
+const WorkoutCalendar = dynamic(
+  () => import('@/components/calendar').then((mod) => mod.WorkoutCalendar),
+  {
+    loading: () => (
+      <div className="min-h-[280px] rounded-xl bg-muted/50 animate-pulse" aria-hidden />
+    ),
+  }
+)
 
 interface CalendarClientProps {
   initialYear: number
@@ -82,7 +91,7 @@ export default function CalendarClient({
           Next →
         </button>
       </div>
-      <WorkoutCalendar year={year} month={month} loggedDates={loggedDates} />
+      <WorkoutCalendar />
     </div>
   )
 }

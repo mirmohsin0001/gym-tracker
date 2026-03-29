@@ -58,12 +58,13 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Protect dashboard and workout routes
-  if (request.nextUrl.pathname.startsWith('/dashboard') || 
-      request.nextUrl.pathname.startsWith('/workouts')) {
-    if (!user) {
-      return NextResponse.redirect(new URL('/login', request.url))
-    }
+  // Protect authenticated app routes
+  const protectedPrefixes = ['/dashboard', '/workouts', '/body', '/logs']
+  const isProtected = protectedPrefixes.some((prefix) =>
+    request.nextUrl.pathname.startsWith(prefix)
+  )
+  if (isProtected && !user) {
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 
   // Redirect authenticated users away from login

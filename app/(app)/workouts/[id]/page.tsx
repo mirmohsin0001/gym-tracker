@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Dumbbell, Zap, Hash, Weight, Repeat } from 'lucide-react'
 import { Workout } from '@/app/lib/types'
-import LogoutButton from '@/components/logout-button'
 import LogWorkoutButton from '@/components/log-workout-button'
 
 async function getWorkout(id: string, userId: string) {
@@ -52,21 +51,7 @@ export default async function WorkoutDetailPage({
   const totalReps = workout.exercises.reduce((acc, e) => acc + (e.sets * e.reps), 0)
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/workouts" className="flex items-center gap-3 group">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center glow-sm group-hover:glow transition-all">
-              <Dumbbell className="h-5 w-5 text-primary" />
-            </div>
-            <span className="text-xl font-display font-bold tracking-tight">GYMTRACK</span>
-          </Link>
-          <LogoutButton />
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-6 sm:py-10 max-w-4xl">
+    <div className="container mx-auto px-4 py-6 sm:py-10 max-w-4xl">
         {/* Back Button */}
         <Link href="/workouts">
           <Button variant="ghost" size="sm" className="mb-6 -ml-2 text-muted-foreground hover:text-foreground">
@@ -176,7 +161,6 @@ export default async function WorkoutDetailPage({
             ))}
           </div>
         </div>
-      </main>
     </div>
   )
 }

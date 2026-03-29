@@ -1,9 +1,5 @@
 import { createClient } from '@/app/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
-import { WorkoutCalendar } from '@/components/calendar'
-import { Button } from '@/components/ui/button'
-import LogoutButton from '@/components/logout-button'
 import CalendarClient from '@/components/calendar-client'
 
 async function getLoggedDates(userId: string, year: number, month: number) {
@@ -43,21 +39,13 @@ export default async function CalendarPage() {
   const loggedDates = await getLoggedDates(user.id, currentYear, currentMonth)
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/dashboard">
-            <h1 className="text-xl sm:text-2xl font-bold cursor-pointer hover:opacity-80">Gym Tracker</h1>
-          </Link>
-          <LogoutButton />
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="container mx-auto px-4 py-6 sm:py-10 max-w-4xl">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold tracking-tight">Workout Calendar</h2>
-          <p className="text-muted-foreground">
-            View your workout history with green dots on logged days
+          <h1 className="text-2xl sm:text-3xl font-display font-bold tracking-tight">
+            Workout Calendar
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Browse months and tap logged days to see sessions
           </p>
         </div>
 
@@ -66,7 +54,6 @@ export default async function CalendarPage() {
           initialMonth={currentMonth}
           initialLoggedDates={loggedDates}
         />
-      </main>
     </div>
   )
 }

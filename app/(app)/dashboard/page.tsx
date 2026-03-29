@@ -1,13 +1,40 @@
 import { createClient } from '@/app/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { WorkoutCalendar } from '@/components/calendar'
 import { WorkoutCard } from '@/components/workout-card'
 import { Button } from '@/components/ui/button'
-import { Plus, Dumbbell, Flame, Target, TrendingUp, Calendar, User, ClipboardList } from 'lucide-react'
+import { Plus, Dumbbell, Flame, Target, TrendingUp, Calendar, Zap } from 'lucide-react'
 import { Workout } from '@/app/lib/types'
-import LogoutButton from '@/components/logout-button'
-import { QuickLogDialog } from '@/components/quick-log-dialog'
+
+const WorkoutCalendar = dynamic(
+  () => import('@/components/calendar').then((mod) => mod.WorkoutCalendar),
+  {
+    loading: () => (
+      <div className="rounded-2xl border border-border/50 bg-card/50 p-4 space-y-4">
+        <div className="h-5 w-36 rounded-md bg-muted animate-pulse" />
+        <div className="h-[min(320px,55vh)] min-h-[240px] rounded-xl bg-muted/60 animate-pulse" />
+      </div>
+    ),
+  }
+)
+
+const QuickLogDialog = dynamic(
+  () => import('@/components/quick-log-dialog').then((mod) => mod.QuickLogDialog),
+  {
+    loading: () => (
+      <Button
+        variant="outline"
+        size="lg"
+        disabled
+        className="gap-2 border-primary/50 font-semibold opacity-80"
+      >
+        <Zap className="h-5 w-5 text-primary" />
+        Quick Log
+      </Button>
+    ),
+  }
+)
 
 async function getWorkouts(userId: string) {
   const supabase = createClient()
@@ -95,35 +122,7 @@ export default async function DashboardPage() {
   const userName = user.user_metadata?.name || user.email?.split('@')[0] || 'Champion'
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center glow-sm">
-              <Dumbbell className="h-5 w-5 text-primary" />
-            </div>
-            <span className="text-xl font-display font-bold tracking-tight">GYMTRACK</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/body">
-              <Button variant="outline" size="sm" className="gap-2">
-                <User className="h-4 w-4" />
-                <span className="hidden sm:inline">Body Map</span>
-              </Button>
-            </Link>
-            <Link href="/logs">
-              <Button variant="outline" size="sm" className="gap-2">
-                <ClipboardList className="h-4 w-4" />
-                <span className="hidden sm:inline">Logs</span>
-              </Button>
-            </Link>
-            <LogoutButton />
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-6 sm:py-10 space-y-8">
+    <div className="container mx-auto px-4 py-6 sm:py-10 space-y-8">
         {/* Hero Section */}
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
           <div className="space-y-2">
@@ -236,10 +235,18 @@ export default async function DashboardPage() {
 
           {/* Calendar Section */}
           <div className="space-y-4">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-sm font-medium text-muted-foreground">Activity</p>
+              <Link href="/dashboard/calendar">
+                <Button variant="ghost" size="sm" className="text-primary gap-1.5 h-8">
+                  <Calendar className="h-4 w-4" />
+                  Full calendar
+                </Button>
+              </Link>
+            </div>
             <WorkoutCalendar />
           </div>
         </div>
-      </main>
     </div>
   )
 }

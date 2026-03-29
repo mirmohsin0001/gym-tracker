@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/app/lib/supabase/client'
 import { Button } from '@/components/ui/button'
@@ -9,6 +10,10 @@ import { toast } from 'sonner'
 export default function LogoutButton() {
   const router = useRouter()
   const supabase = createClient()
+
+  useEffect(() => {
+    router.prefetch('/login')
+  }, [router])
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut()

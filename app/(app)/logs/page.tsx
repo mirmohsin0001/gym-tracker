@@ -2,8 +2,7 @@ import { createClient } from '@/app/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Dumbbell, ArrowLeft, Calendar, Clock, FileText, ChevronRight, User, ClipboardList } from 'lucide-react'
-import LogoutButton from '@/components/logout-button'
+import { Dumbbell, Calendar, FileText, ChevronRight, ClipboardList } from 'lucide-react'
 import { Workout, WorkoutLog } from '@/app/lib/types'
 
 interface LogWithWorkout extends WorkoutLog {
@@ -29,7 +28,7 @@ async function getWorkoutLogs(userId: string) {
   if (!logs || logs.length === 0) return []
 
   // Get all unique workout IDs
-  const workoutIds = [...new Set(logs.map(log => log.workout_id))]
+  const workoutIds = Array.from(new Set(logs.map((log) => log.workout_id)))
   
   // Fetch all related workouts
   const { data: workouts, error: workoutsError } = await supabase
@@ -115,50 +114,12 @@ export default async function LogsPage() {
   )
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center glow-sm">
-              <Dumbbell className="h-5 w-5 text-primary" />
-            </div>
-            <span className="text-xl font-display font-bold tracking-tight">GYMTRACK</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/body">
-              <Button variant="outline" size="sm" className="gap-2">
-                <User className="h-4 w-4" />
-                <span className="hidden sm:inline">Body Map</span>
-              </Button>
-            </Link>
-            <Link href="/logs">
-              <Button variant="outline" size="sm" className="gap-2 border-primary/50 text-primary">
-                <ClipboardList className="h-4 w-4" />
-                <span className="hidden sm:inline">Logs</span>
-              </Button>
-            </Link>
-            <LogoutButton />
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-6 sm:py-10 space-y-6">
-        {/* Back Button & Title */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard">
-              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl">
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-display font-bold">Workout Logs</h1>
-              <p className="text-sm text-muted-foreground mt-0.5">
-                {logs.length} total {logs.length === 1 ? 'session' : 'sessions'} logged
-              </p>
-            </div>
-          </div>
+    <div className="container mx-auto px-4 py-6 sm:py-10 space-y-6">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-display font-bold">Workout Logs</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {logs.length} total {logs.length === 1 ? 'session' : 'sessions'} logged
+          </p>
         </div>
 
         {/* Logs List */}
@@ -172,10 +133,7 @@ export default async function LogsPage() {
               Start logging your workouts to track your progress over time
             </p>
             <Link href="/dashboard">
-              <Button className="gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                Back to Dashboard
-              </Button>
+              <Button className="gap-2">Go to home</Button>
             </Link>
           </div>
         ) : (
@@ -246,7 +204,6 @@ export default async function LogsPage() {
             ))}
           </div>
         )}
-      </main>
     </div>
   )
 }

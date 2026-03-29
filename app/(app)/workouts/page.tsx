@@ -3,9 +3,8 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { WorkoutCard } from '@/components/workout-card'
 import { Button } from '@/components/ui/button'
-import { Plus, ArrowLeft, Dumbbell, Search } from 'lucide-react'
+import { Plus, Dumbbell } from 'lucide-react'
 import { Workout } from '@/app/lib/types'
-import LogoutButton from '@/components/logout-button'
 
 async function getWorkouts(userId: string) {
   const supabase = createClient()
@@ -34,29 +33,7 @@ export default async function WorkoutsPage() {
   const workouts = await getWorkouts(user.id)
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/dashboard" className="flex items-center gap-3 group">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center glow-sm group-hover:glow transition-all">
-              <Dumbbell className="h-5 w-5 text-primary" />
-            </div>
-            <span className="text-xl font-display font-bold tracking-tight">GYMTRACK</span>
-          </Link>
-          <LogoutButton />
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-6 sm:py-10">
-        {/* Back Button */}
-        <Link href="/dashboard">
-          <Button variant="ghost" size="sm" className="mb-6 -ml-2 text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
-          </Button>
-        </Link>
-
+    <div className="container mx-auto px-4 py-6 sm:py-10">
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mb-8">
           <div>
@@ -104,7 +81,6 @@ export default async function WorkoutsPage() {
             ))}
           </div>
         )}
-      </main>
     </div>
   )
 }

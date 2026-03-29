@@ -1,13 +1,27 @@
 'use client'
 
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { WorkoutForm } from '@/components/workout-form'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Dumbbell, Sparkles } from 'lucide-react'
+import { ArrowLeft, Sparkles } from 'lucide-react'
 import { toast } from 'sonner'
 import { Exercise } from '@/app/lib/types'
+
+const WorkoutForm = dynamic(
+  () => import('@/components/workout-form').then((mod) => mod.WorkoutForm),
+  {
+    loading: () => (
+      <div className="space-y-6" aria-busy="true">
+        <div className="h-10 w-full rounded-lg bg-muted animate-pulse" />
+        <div className="h-36 w-full rounded-xl bg-muted/80 animate-pulse" />
+        <div className="h-36 w-full rounded-xl bg-muted/80 animate-pulse" />
+        <div className="h-11 w-32 rounded-lg bg-muted animate-pulse" />
+      </div>
+    ),
+  }
+)
 
 export default function NewWorkoutPage() {
   const router = useRouter()
@@ -40,15 +54,13 @@ export default function NewWorkoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/workouts" className="flex items-center gap-3 group">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center glow-sm group-hover:glow transition-all">
-              <Dumbbell className="h-5 w-5 text-primary" />
-            </div>
-            <span className="text-xl font-display font-bold tracking-tight">GYMTRACK</span>
+    <div className="container mx-auto px-4 py-6 sm:py-10 max-w-2xl">
+        <div className="flex items-center justify-between gap-4 mb-6">
+          <Link href="/workouts">
+            <Button variant="ghost" size="sm" className="-ml-2 text-muted-foreground hover:text-foreground">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Workouts
+            </Button>
           </Link>
           <Link href="/workouts">
             <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
@@ -56,16 +68,6 @@ export default function NewWorkoutPage() {
             </Button>
           </Link>
         </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-6 sm:py-10 max-w-2xl">
-        {/* Back Button */}
-        <Link href="/workouts">
-          <Button variant="ghost" size="sm" className="mb-6 -ml-2 text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Workouts
-          </Button>
-        </Link>
 
         {/* Header Section */}
         <div className="mb-8">
@@ -84,7 +86,6 @@ export default function NewWorkoutPage() {
         <div className="rounded-2xl bg-card border border-border/50 p-6 sm:p-8">
           <WorkoutForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
         </div>
-      </main>
     </div>
   )
 }
