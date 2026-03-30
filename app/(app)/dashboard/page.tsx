@@ -19,8 +19,8 @@ const WorkoutCalendar = dynamic(
   }
 )
 
-const QuickLogDialog = dynamic(
-  () => import('@/components/quick-log-dialog').then((mod) => mod.QuickLogDialog),
+const WorkoutLogDialog = dynamic(
+  () => import('@/components/workout-log-dialog').then((mod) => mod.WorkoutLogDialog),
   {
     loading: () => (
       <Button
@@ -151,7 +151,7 @@ export default async function DashboardPage() {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-            <QuickLogDialog />
+            <WorkoutLogDialog />
             <Link href="/workouts/new" className="w-full sm:w-auto">
               <Button size="lg" className="w-full sm:w-auto gap-2 glow font-semibold text-base">
                 <Plus className="h-5 w-5" />

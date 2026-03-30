@@ -2,10 +2,18 @@ import { createClient } from '@/app/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
+const exerciseSchema = z.object({
+  name: z.string().min(1, 'Exercise name is required'),
+  sets: z.number().min(1, 'Sets must be at least 1'),
+  reps: z.number().min(1, 'Reps must be at least 1'),
+  weight: z.number().optional().nullable(),
+})
+
 const workoutLogSchema = z.object({
-  workout_id: z.string().uuid('Invalid workout ID'),
+  workout_id: z.string().uuid('Invalid workout ID').optional().nullable(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
   notes: z.string().optional().nullable(),
+  exercises: z.array(exerciseSchema).min(1, 'At least one exercise is required'),
 })
 
 export async function GET(request: Request) {
@@ -64,25 +72,28 @@ export async function POST(request: Request) {
     const body = await request.json()
     const validatedData = workoutLogSchema.parse(body)
 
-    // Verify workout belongs to user
-    const { data: workout, error: workoutError } = await supabase
-      .from('workouts')
-      .select('id')
-      .eq('id', validatedData.workout_id)
-      .eq('user_id', user.id)
-      .single()
+    // Verify workout belongs to user if workout_id is provided
+    if (validatedData.workout_id) {
+      const { data: workout, error: workoutError } = await supabase
+        .from('workouts')
+        .select('id')
+        .eq('id', validatedData.workout_id)
+        .eq('user_id', user.id)
+        .single()
 
-    if (workoutError || !workout) {
-      return NextResponse.json({ error: 'Workout not found' }, { status: 404 })
+      if (workoutError || !workout) {
+        return NextResponse.json({ error: 'Workout not found' }, { status: 404 })
+      }
     }
 
     const { data: log, error } = await supabase
       .from('workout_logs')
       .insert({
         user_id: user.id,
-        workout_id: validatedData.workout_id,
+        workout_id: validatedData.workout_id || null,
         date: validatedData.date,
         notes: validatedData.notes || null,
+        exercises: validatedData.exercises,
       })
       .select()
       .single()

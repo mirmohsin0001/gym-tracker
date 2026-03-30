@@ -17,10 +17,11 @@ export interface Workout {
 export interface WorkoutLog {
   id: string
   user_id: string
-  workout_id: string
+  workout_id?: string | null
   date: string // YYYY-MM-DD format
   notes?: string | null
   created_at?: string
+  exercises?: Exercise[]
 }
 
 export interface Profile {

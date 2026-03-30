@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -15,13 +15,7 @@ import {
 } from '@/components/ui/dialog'
 import { Plus, Trash2, Zap, Dumbbell } from 'lucide-react'
 import { toast } from 'sonner'
-
-interface Exercise {
-  name: string
-  sets: number
-  reps: number
-  weight?: number
-}
+import { Workout, Exercise, WorkoutLog } from '@/app/lib/types'
 
 const COMMON_EXERCISES = [
   'Bench Press',
@@ -38,14 +32,48 @@ const COMMON_EXERCISES = [
   'Plank',
 ]
 
-export function QuickLogDialog() {
+interface WorkoutLogDialogProps {
+  workout?: Workout
+  logToEdit?: WorkoutLog
+  children?: React.ReactNode // Custom trigger if any
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+}
+
+export function WorkoutLogDialog({ workout, logToEdit, children, open: controlledOpen, onOpenChange }: WorkoutLogDialogProps) {
   const router = useRouter()
-  const [open, setOpen] = useState(false)
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false)
+  
+  const isOpen = controlledOpen !== undefined ? controlledOpen : uncontrolledOpen
+  const setIsOpen = (newOpen: boolean) => {
+    if (onOpenChange) {
+      onOpenChange(newOpen)
+    } else {
+      setUncontrolledOpen(newOpen)
+    }
+  }
+
   const [isLogging, setIsLogging] = useState(false)
   const [exercises, setExercises] = useState<Exercise[]>([
     { name: '', sets: 3, reps: 10, weight: undefined }
   ])
   const [notes, setNotes] = useState('')
+
+  // Initialize form with template data if editing an existing workout
+  useEffect(() => {
+    if (isOpen) {
+      if (logToEdit && logToEdit.exercises && logToEdit.exercises.length > 0) {
+        setExercises(JSON.parse(JSON.stringify(logToEdit.exercises)))
+        setNotes(logToEdit.notes || '')
+      } else if (workout && workout.exercises.length > 0) {
+        setExercises(JSON.parse(JSON.stringify(workout.exercises)))
+        setNotes('')
+      } else {
+        setExercises([{ name: '', sets: 3, reps: 10, weight: undefined }])
+        setNotes('')
+      }
+    }
+  }, [isOpen, workout, logToEdit])
 
   const addExercise = () => {
     setExercises([...exercises, { name: '', sets: 3, reps: 10, weight: undefined }])
@@ -75,7 +103,7 @@ export function QuickLogDialog() {
     setExercises(updated)
   }
 
-  const handleQuickLog = async () => {
+  const handleLogWorkout = async () => {
     // Validate exercises
     const validExercises = exercises.filter(e => e.name.trim() !== '')
     if (validExercises.length === 0) {
@@ -91,53 +119,72 @@ export function QuickLogDialog() {
       const dd = String(now.getDate()).padStart(2, '0')
       const today = `${yyyy}-${mm}-${dd}`
 
-      const response = await fetch('/api/quick-log', {
-        method: 'POST',
+      const isEditing = !!logToEdit;
+      const url = isEditing ? `/api/workout-logs/${logToEdit.id}` : '/api/workout-logs';
+      const method = isEditing ? 'PUT' : 'POST';
+
+      const payload = isEditing ? {
+        exercises: validExercises,
+        notes: notes.trim() || null,
+      } : {
+        workout_id: workout?.id || undefined,
+        exercises: validExercises,
+        date: today,
+        notes: notes.trim() || null,
+      }
+
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          exercises: validExercises,
-          date: today,
-          notes: notes.trim() || null,
-        }),
+        body: JSON.stringify(payload),
       })
 
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.error || 'Failed to log exercises')
+        throw new Error(error.error || `Failed to ${isEditing ? 'update' : 'log'} workout`)
       }
 
-      toast.success(`Logged ${validExercises.length} exercise${validExercises.length > 1 ? 's' : ''}!`)
-      setOpen(false)
-      setExercises([{ name: '', sets: 3, reps: 10, weight: undefined }])
-      setNotes('')
+      toast.success(isEditing ? 'Workout log updated successfully!' : workout ? 'Workout logged! Keep crushing it!' : `Logged ${validExercises.length} exercise${validExercises.length > 1 ? 's' : ''}!`)
+      setIsOpen(false)
       router.refresh()
     } catch (error: any) {
-      toast.error(error.message || 'Failed to log exercises')
+      toast.error(error.message || 'Failed to log workout')
     } finally {
       setIsLogging(false)
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="lg" className="gap-2 border-primary/50 hover:bg-primary/10 hover:border-primary font-semibold">
-          <Zap className="h-5 w-5 text-primary" />
-          Quick Log
-        </Button>
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      {children ? (
+        <DialogTrigger asChild>
+          {children}
+        </DialogTrigger>
+      ) : controlledOpen === undefined ? (
+        <DialogTrigger asChild>
+          <Button variant="outline" size="lg" className="gap-2 border-primary/50 hover:bg-primary/10 hover:border-primary font-semibold">
+            <Zap className="h-5 w-5 text-primary" />
+            Quick Log
+          </Button>
+        </DialogTrigger>
+      ) : null}
+      
       <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 font-display text-xl">
             <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
               <Dumbbell className="h-4 w-4 text-primary" />
             </div>
-            Quick Log Exercises
+            {logToEdit ? 'Edit Workout Log' : workout ? `Log ${workout.name}` : 'Quick Log Exercises'}
           </DialogTitle>
           <DialogDescription>
-            Log individual exercises without creating a full workout routine.
+            {logToEdit 
+              ? 'Make changes to your logged workout session.'
+              : workout 
+              ? 'Review and adjust your logs before saving.' 
+              : 'Log individual exercises without creating a full workout routine.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -252,24 +299,24 @@ export function QuickLogDialog() {
           <Button
             variant="outline"
             className="flex-1"
-            onClick={() => setOpen(false)}
+            onClick={() => setIsOpen(false)}
           >
             Cancel
           </Button>
           <Button
             className="flex-1 gap-2 glow"
-            onClick={handleQuickLog}
+            onClick={handleLogWorkout}
             disabled={isLogging}
           >
             {isLogging ? (
               <>
                 <div className="h-4 w-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                Logging...
+                {logToEdit ? 'Saving...' : 'Logging...'}
               </>
             ) : (
               <>
                 <Zap className="h-4 w-4" />
-                Log Exercises
+                {logToEdit ? 'Save Changes' : `Log ${workout ? 'Workout' : 'Exercises'}`}
               </>
             )}
           </Button>

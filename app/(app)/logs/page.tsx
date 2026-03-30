@@ -4,10 +4,9 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Dumbbell, Calendar, FileText, ChevronRight, ClipboardList } from 'lucide-react'
 import { Workout, WorkoutLog } from '@/app/lib/types'
+import { WorkoutLogCard, LogWithWorkout } from '@/components/workout-log-card'
 
-interface LogWithWorkout extends WorkoutLog {
-  workout?: Workout
-}
+// Component uses LogWithWorkout imported above
 
 async function getWorkoutLogs(userId: string) {
   const supabase = createClient()
@@ -82,9 +81,10 @@ function formatFullDate(dateStr: string) {
   })
 }
 
-function getTotalVolume(workout?: Workout) {
-  if (!workout?.exercises) return 0
-  return workout.exercises.reduce((sum, ex) => {
+function getTotalVolume(log: LogWithWorkout) {
+  const exercises = log.exercises?.length ? log.exercises : log.workout?.exercises
+  if (!exercises) return 0
+  return exercises.reduce((sum, ex) => {
     return sum + (ex.sets * ex.reps * (ex.weight || 0))
   }, 0)
 }
@@ -141,14 +141,14 @@ export default async function LogsPage() {
             {sortedDates.map((date, dateIndex) => (
               <div 
                 key={date} 
-                className="rounded-2xl bg-card border border-border/50 overflow-hidden animate-slide-up" 
+                className="rounded-2xl bg-card border border-border/50 animate-slide-up" 
                 style={{ animationDelay: `${dateIndex * 50}ms` }}
               >
                 {/* Date Header */}
                 {(() => {
-                  const dayVolume = groupedLogs[date].reduce((sum, log) => sum + getTotalVolume(log.workout), 0)
+                  const dayVolume = groupedLogs[date].reduce((sum, log) => sum + getTotalVolume(log), 0)
                   return (
-                    <div className="flex items-center gap-3 px-5 py-4 border-b border-border/50 bg-secondary/30">
+                    <div className="flex items-center gap-3 px-5 py-4 border-b border-border/50 bg-secondary/30 rounded-t-2xl">
                       <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
                         <Calendar className="h-4 w-4 text-primary" />
                       </div>
@@ -174,49 +174,12 @@ export default async function LogsPage() {
                 {/* Logs for this date */}
                 <div className="divide-y divide-border/40">
                   {groupedLogs[date].map((log) => {
-                    const volume = getTotalVolume(log.workout)
+                    const volume = getTotalVolume(log)
                     
                     return (
-                      <Link 
-                        key={log.id} 
-                        href={`/workouts/${log.workout_id}`}
-                        className="block group"
-                      >
-                        <div className="px-5 py-4 transition-all hover:bg-secondary/40">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className="h-10 w-10 rounded-xl bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                                <Dumbbell className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                              </div>
-                              <div>
-                                <h3 className="font-semibold group-hover:text-primary transition-colors">
-                                  {log.workout?.name || 'Unknown Workout'}
-                                </h3>
-                                <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
-                                  {log.workout?.exercises && (
-                                    <span>{log.workout.exercises.length} exercises</span>
-                                  )}
-                                  {volume > 0 && (
-                                    <span>{volume.toLocaleString()} kg volume</span>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                            <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
-                          </div>
-                          
-                          {log.notes && (
-                            <div className="mt-3 pt-3 border-t border-border/30 ml-[52px]">
-                              <div className="flex items-start gap-2">
-                                <FileText className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-                                <p className="text-sm text-muted-foreground line-clamp-2">
-                                  {log.notes}
-                                </p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </Link>
+                      <div key={log.id} className="block group border-b border-border/40 last:border-0 last:rounded-b-2xl">
+                        <WorkoutLogCard log={log} volume={volume} />
+                      </div>
                     )
                   })}
                 </div>
